@@ -184,9 +184,9 @@ export default function AccommodationsPage() {
   // 准备地图标记数据
   const mapMarkers = filteredAccommodations.map(accommodation => ({
     id: accommodation.id,
-    name: accommodation.name,
-    latitude: accommodation.latitude || 25.5018,
-    longitude: accommodation.longitude || 119.7909,
+    position: [accommodation.longitude || 119.7909, accommodation.latitude || 25.5018] as [number, number],
+    title: accommodation.name,
+    content: `${accommodation.description || ''}<br/>价格: ${accommodation.priceRange}<br/>评分: ${accommodation.rating} ⭐`,
     type: 'accommodation' as const
   }))
 
@@ -390,8 +390,10 @@ export default function AccommodationsPage() {
         <div className="w-1/2 relative">
           <MapComponent 
             markers={mapMarkers}
-            center={[119.7906, 25.5018]}
-            zoom={13}
+            config={{
+              center: [119.7906, 25.5018],
+              zoom: 13
+            }}
             className="w-full h-full"
           />
         </div>

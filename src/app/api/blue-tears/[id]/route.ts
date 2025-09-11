@@ -4,10 +4,10 @@ import { mockBlueTearSpots, BlueTearSpotDetailResponse } from '@/data/blue-tears
 // GET /api/blue-tears/[id] - 获取蓝眼泪观赏点详情
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     
     // 查找对应的观赏点
     const spot = mockBlueTearSpots.find(s => s.id === id)

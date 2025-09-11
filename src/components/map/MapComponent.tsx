@@ -8,10 +8,29 @@ import { escapeHTML } from '@/lib/utils';
 // 百度地图类型定义
 declare global {
   interface Window {
-    BMapGL: unknown;
-    BMAP_COORD_GCJ02: unknown;
+    BMapGL: any;
+    BMAP_COORD_GCJ02: any;
     initBaiduMap?: () => void;
   }
+}
+
+// 最小地图实例接口（顶层定义，供组件使用）
+interface BMapGLInstance {
+  addOverlay: (overlay: unknown) => void
+  removeOverlay: (overlay: unknown) => void
+  openInfoWindow: (infoWindow: unknown, point: unknown) => void
+  closeInfoWindow: (infoWindow?: unknown) => void
+  centerAndZoom?: (point: unknown, zoom: number) => void
+  enableScrollWheelZoom?: () => void
+  enableDoubleClickZoom?: () => void
+  enableKeyboard?: () => void
+  enableDragging?: () => void
+  setHeading?: (heading: number) => void
+  setTilt?: (tilt: number) => void
+  addControl?: (control: unknown) => void
+  addEventListener?: (type: string, handler: (e: unknown) => void) => void
+  getZoom?: () => number
+  getCenter?: () => { lng: number; lat: number }
 }
 
 // 地图标记点接口
@@ -103,7 +122,7 @@ function useMapScript() {
     const loadScript = async () => {
       try {
         // 获取API密钥
-        const apiKey = process.env.NEXT_PUBLIC_BAIDU_MAP_JS_API_KEY || 'KeKO6RjV3PJ4a0ym1KimCO8yZpW2OkSu';
+        const apiKey = process.env.NEXT_PUBLIC_BAIDU_MAP_JS_API_KEY;
         if (!apiKey) {
           throw new Error('百度地图API密钥未配置，请在环境变量中设置NEXT_PUBLIC_BAIDU_MAP_JS_API_KEY');
         }
@@ -116,6 +135,8 @@ function useMapScript() {
 
         // 设置全局回调函数
         window.initBaiduMap = () => {
+          // 在加载成功时清理超时定时器
+          clearTimeout(timeoutId)
           if (window.BMapGL) {
             setLoadState(MapLoadState.LOADED);
             console.log('百度地图API加载成功');
@@ -126,6 +147,8 @@ function useMapScript() {
 
         // 处理加载错误
         script.onerror = () => {
+          // 在发生错误时清理超时定时器
+          clearTimeout(timeoutId)
           setLoadState(MapLoadState.ERROR);
           setError('百度地图API脚本加载失败，请检查网络连接');
         };
@@ -134,11 +157,9 @@ function useMapScript() {
         document.head.appendChild(script);
 
         // 设置超时
-        setTimeout(() => {
-          if (loadState === MapLoadState.LOADING) {
-            setLoadState(MapLoadState.ERROR);
-            setError('百度地图API加载超时，请刷新页面重试');
-          }
+        const timeoutId = window.setTimeout(() => {
+          setLoadState(MapLoadState.ERROR);
+          setError('百度地图API加载超时，请刷新页面重试');
         }, 10000);
 
       } catch (err) {
@@ -169,13 +190,14 @@ export default function MapComponent({
   style
 }: MapComponentProps) {
   // 状态管理
-  const [mapInstance, setMapInstance] = useState<unknown>(null);
+  const [mapInstance, setMapInstance] = useState<BMapGLInstance | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentCenter, setCurrentCenter] = useState<[number, number]>(DEFAULT_CONFIG.center);
   const [currentZoom, setCurrentZoom] = useState<number>(DEFAULT_CONFIG.zoom);
   
   // Refs
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  // 顶层已定义 BMapGLInstance 接口
   const markersRef = useRef<unknown[]>([]);
   const infoWindowRef = useRef<unknown>(null);
 

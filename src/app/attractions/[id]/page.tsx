@@ -109,7 +109,7 @@ const mockReviews: Review[] = [
     userName: '旅行达人小王',
     avatar: '/images/avatars/user1.jpg',
     rating: 5,
-    comment: '真的太美了！日出时分的坛南湾简直就是人间仙境，沙滩很干净，海水也很清澈。强烈推荐！',
+    comment: '真的太美了！日出时分的坛南湾其实就是人间仙境，沙滩很干净，海水也很清澈。强烈推荐！',
     date: '2024-01-15',
     images: ['/images/reviews/review1-1.jpg', '/images/reviews/review1-2.jpg']
   },
@@ -426,8 +426,10 @@ export default function AttractionDetailPage() {
                 
                 <div className="mb-4">
                   <MapComponent
-                    center={[attraction.coordinates.lng, attraction.coordinates.lat]}
-                    zoom={15}
+                    config={{
+                      center: [attraction.coordinates.lng, attraction.coordinates.lat],
+                      zoom: 15
+                    }}
                     markers={[{
                       id: attraction.id,
                       position: [attraction.coordinates.lng, attraction.coordinates.lat],

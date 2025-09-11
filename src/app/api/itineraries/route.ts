@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
         tags: tags || [],
         days: parseInt(days),
         budget: budget ? parseFloat(budget) : null,
-        createdBy: createdBy ? parseInt(createdBy) : null
+        // createdBy 字段在 schema 中不存在，已移除
       }
     })
     

@@ -318,8 +318,10 @@ export default function AttractionsPage() {
           {showMap && (
             <div className="mb-8">
               <MapComponent
-                center={[119.7906, 25.4444]}
-                zoom={5}
+                config={{
+                  center: [119.7906, 25.4444],
+                  zoom: 5
+                }}
                 markers={getMapMarkers()}
                 height="400px"
                 onMarkerClick={(markerId) => {

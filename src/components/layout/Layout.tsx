@@ -4,22 +4,20 @@ import { ReactNode } from 'react'
 import { SessionProvider } from 'next-auth/react'
 import Header from './Header'
 import Footer from './Footer'
-import { LocaleProvider, useLocale } from '../providers/LocaleProvider'
+import { LocaleProvider } from '../providers/LocaleProvider'
 
 interface LayoutContentProps {
   children: ReactNode
 }
 
 function LayoutContent({ children }: LayoutContentProps) {
-  const { locale, setLocale } = useLocale()
-
   return (
     <div className="min-h-screen flex flex-col">
-      <Header locale={locale} setLocale={setLocale} />
+      <Header />
       <main className="flex-1">
         {children}
       </main>
-      <Footer locale={locale} />
+      <Footer />
     </div>
   )
 }

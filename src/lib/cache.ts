@@ -59,8 +59,10 @@ class MemoryCache {
   set(key: string, data: unknown, ttl: number): void {
     // 如果缓存已满，删除最旧的条目
     if (this.cache.size >= this.maxSize) {
-      const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
+      const first = this.cache.keys().next();
+      if (!first.done && typeof first.value === 'string') {
+        this.cache.delete(first.value);
+      }
     }
 
     this.cache.set(key, {

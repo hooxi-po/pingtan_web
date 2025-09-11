@@ -689,8 +689,25 @@ export default function ItineraryPage() {
                       </h3>
                       <div className="bg-gray-100 rounded-lg overflow-hidden">
                         <MapComponent
-                          center={[119.7234, 25.4567]}
-                          zoom={5}
+                          config={{
+                            center: [119.7234, 25.4567],
+                            zoom: 5
+                          }}
+                          markers={selectedItinerary.items.map(item => ({
+                            id: item.id,
+                            position: [item.attraction.coordinates.lng, item.attraction.coordinates.lat],
+                            title: item.attraction.name,
+                            content: `${item.attraction.name}<br/>${item.startTime} - ${item.endTime}`
+                          }))}
+                          height="400px"
+                        />
+                      </div>
+                      <div className="bg-gray-100 rounded-lg overflow-hidden">
+                        <MapComponent
+                          config={{
+                            center: [119.7234, 25.4567],
+                            zoom: 5
+                          }}
                           markers={selectedItinerary.items.map(item => ({
                             id: item.id,
                             position: [item.attraction.coordinates.lng, item.attraction.coordinates.lat],

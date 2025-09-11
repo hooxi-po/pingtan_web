@@ -386,8 +386,10 @@ export default function FoodDetailPage() {
               </div>
               <div className="h-64">
                 <MapComponent
-                  center={[food.coordinates.lng, food.coordinates.lat]}
-                  zoom={15}
+                  config={{
+                    center: [food.coordinates.lng, food.coordinates.lat],
+                    zoom: 15
+                  }}
                   markers={mapMarkers}
                 />
               </div>

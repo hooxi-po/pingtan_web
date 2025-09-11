@@ -50,7 +50,7 @@ export function useMap(options: UseMapOptions = {}) {
   });
 
   // Refs
-  const mapInstanceRef = useRef<unknown>(null);
+  const mapInstanceRef = useRef<any>(null);
   const eventHandlerRef = useRef(new MapEventHandler());
   const markersRef = useRef<MapMarker[]>([]);
 
@@ -186,13 +186,13 @@ export function useMap(options: UseMapOptions = {}) {
 
   // 防抖的地图更新函数
   const debouncedPanTo = useCallback(
-    MapPerformance.debounce(panTo, 300),
+    MapPerformance.debounce(panTo as (...args: any[]) => any, 300),
     [panTo]
   );
 
   // 节流的缩放更新函数
   const throttledSetZoom = useCallback(
-    MapPerformance.throttle(setZoom, 100),
+    MapPerformance.throttle(setZoom as (...args: any[]) => any, 100),
     [setZoom]
   );
 
@@ -266,7 +266,7 @@ export function useMap(options: UseMapOptions = {}) {
 }
 
 // 景点地图Hook
-export function useAttractionMap(attractions: unknown[] = []) {
+export function useAttractionMap(attractions: any[] = []) {
   const mapHook = useMap({
     autoFitMarkers: true,
     initialConfig: {
@@ -296,7 +296,7 @@ export function useAttractionMap(attractions: unknown[] = []) {
 }
 
 // 路线地图Hook
-export function useRouteMap(routePoints: unknown[] = []) {
+export function useRouteMap(routePoints: any[] = []) {
   const mapHook = useMap({
     autoFitMarkers: true,
     initialConfig: {

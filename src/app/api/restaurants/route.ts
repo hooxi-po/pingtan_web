@@ -22,14 +22,13 @@ export async function GET(request: NextRequest) {
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
-        { nameEn: { contains: search, mode: 'insensitive' } },
         { address: { contains: search, mode: 'insensitive' } },
         { specialties: { hasSome: [search] } }
       ]
     }
     
     if (cuisine) {
-      where.cuisine = cuisine
+      where.cuisine = { has: cuisine }
     }
     
     if (priceRange) {
@@ -89,15 +88,19 @@ export async function POST(request: NextRequest) {
 
     const data = validation.data
 
+    // 规范化字段
+    const cuisineArray = Array.isArray(data.cuisine)
+      ? data.cuisine
+      : (data.cuisine || '').split(',').map(s => s.trim()).filter(Boolean)
+
     // 创建餐厅
     const restaurant = await prisma.restaurant.create({
       data: {
         name: data.name,
-        nameEn: data.nameEn,
         address: data.address,
-        cuisine: data.cuisine,
+        cuisine: cuisineArray,
         priceRange: data.priceRange,
-        openingHours: data.openingHours,
+        openHours: data.openingHours,
         specialties: data.specialties || [],
         contact: data.contact,
         images: data.images || [],

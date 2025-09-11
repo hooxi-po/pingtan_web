@@ -136,12 +136,28 @@ export function getLocalizedMessage(key: string, lang: string = 'zh'): string {
  * @param lang 语言代码
  * @returns NextResponse 错误响应
  */
-export function createErrorResponse(key: string, status: number = 500, lang: string = 'zh'): NextResponse {
+export function createErrorResponse(
+  key: string,
+  status: number = 500,
+  langOrDetails: string | string[] = 'zh',
+  langIfDetails?: string
+): NextResponse {
+  let lang = 'zh'
+  let details: string[] | undefined
+
+  if (Array.isArray(langOrDetails)) {
+    details = langOrDetails
+    lang = langIfDetails || 'zh'
+  } else if (typeof langOrDetails === 'string') {
+    lang = langOrDetails
+  }
+
   const message = getLocalizedMessage(key, lang)
-  return NextResponse.json(
-    { success: false, error: message },
-    { status }
-  )
+  const body: Record<string, unknown> = { success: false, error: message }
+  if (details && details.length) {
+    body.details = details
+  }
+  return NextResponse.json(body, { status })
 }
 
 /**
@@ -153,19 +169,28 @@ export function createErrorResponse(key: string, status: number = 500, lang: str
  * @returns NextResponse 成功响应
  */
 export function createSuccessResponse(
-  key: string, 
-  data?: unknown, 
-  status: number = 200, 
-  lang: string = 'zh'
+  arg1: string | unknown,
+  arg2?: unknown,
+  arg3?: number,
+  arg4?: string
 ): NextResponse {
-  const message = getLocalizedMessage(key, lang)
-  const response: Record<string, unknown> = { success: true, message }
-  
-  if (data !== undefined) {
-    response.data = data
+  // 形式一：createSuccessResponse(key, data?, status?, lang?)
+  if (typeof arg1 === 'string') {
+    const key = arg1
+    const data = arg2
+    const status = typeof arg3 === 'number' ? arg3 : 200
+    const lang = typeof arg4 === 'string' ? arg4 : 'zh'
+    const message = getLocalizedMessage(key, lang)
+    const response: Record<string, unknown> = { success: true, message }
+    if (data !== undefined) response.data = data
+    return NextResponse.json(response, { status })
   }
-  
-  return NextResponse.json(response, { status })
+
+  // 形式二：createSuccessResponse(data, message?, status?)
+  const data = arg1
+  const message = typeof arg2 === 'string' ? arg2 : '成功'
+  const status = typeof arg3 === 'number' ? arg3 : 200
+  return NextResponse.json({ success: true, message, data }, { status })
 }
 
 /**
@@ -191,8 +216,8 @@ export function logError(error: unknown, context: string, lang: string = 'zh'): 
   if (typeof window !== 'undefined') {
     import('./monitoring').then(({ errorTracker }) => {
       errorTracker.captureError({
-        message: error?.message || String(error),
-        stack: error?.stack,
+        message: (error as any)?.message || String(error),
+        stack: (error as any)?.stack,
         url: window.location.href,
         userAgent: navigator.userAgent,
         severity: 'medium',

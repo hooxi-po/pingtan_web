@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
-import { authOptions } from '../auth/[...nextauth]/route'
+import { authOptions } from '@/lib/auth'
 import { GeminiService } from '@/lib/gemini'
-import { prisma } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 
 interface ChatMessage {
   role: 'user' | 'assistant'

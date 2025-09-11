@@ -704,11 +704,10 @@ export default function FoodPage() {
               </div>
               <div className="h-[calc(100%-80px)]">
                 <MapComponent
-                  center={mapHook.center}
-                  zoom={mapHook.zoom}
-                  markers={mapHook.markers}
-                  onMapReady={mapHook.setMapInstance}
-                />
+                  config={{ center: mapHook.center, zoom: mapHook.zoom }}
+                   markers={mapHook.markers}
+                   onMapReady={mapHook.setMapInstance}
+                 />
               </div>
             </div>
           </div>

@@ -161,7 +161,7 @@ export function createMapMarker({
   position,
   title,
   content,
-  type = 'attraction',
+  type = 'ATTRACTION',
   onClick
 }: {
   id: string;

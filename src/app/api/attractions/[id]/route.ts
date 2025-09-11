@@ -4,10 +4,11 @@ import { prisma } from '@/lib/prisma'
 // GET /api/attractions/[id] - 获取单个景点详情
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idParam } = await params
+    const id = parseInt(idParam)
     const { searchParams } = new URL(request.url)
     const lang = searchParams.get('lang') || 'zh'
     
@@ -21,33 +22,7 @@ export async function GET(
     const attraction = await prisma.attraction.findUnique({
       where: { id },
       include: {
-        userActions: {
-          where: {
-            actionType: 'review'
-          },
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                image: true
-              }
-            }
-          },
-          orderBy: {
-            createdAt: 'desc'
-          },
-          take: 10
-        },
-        _count: {
-          select: {
-            userActions: {
-              where: {
-                actionType: 'favorite'
-              }
-            }
-          }
-        }
+        // 移除userActions关联查询，因为schema中没有直接关系
       }
     })
     
@@ -75,11 +50,8 @@ export async function GET(
         description = attraction.descriptionZh
     }
     
-    // 计算平均评分
-    const reviews = attraction.userActions.filter(action => action.rating)
-    const averageRating = reviews.length > 0 
-      ? reviews.reduce((sum, review) => sum + (review.rating || 0), 0) / reviews.length
-      : 0
+    // 暂时设置默认评分，后续可通过独立的评分系统实现
+    const averageRating = 0
     
     const formattedAttraction = {
       id: attraction.id,
@@ -92,16 +64,10 @@ export async function GET(
       popularity: attraction.popularity,
       images: attraction.images,
       tags: attraction.tags,
-      favoriteCount: attraction._count.userActions,
+      favoriteCount: 0, // 暂时设置为0，后续可通过独立查询实现
       averageRating: Math.round(averageRating * 10) / 10,
-      reviewCount: reviews.length,
-      reviews: attraction.userActions.map(review => ({
-        id: review.id,
-        content: review.content,
-        rating: review.rating,
-        createdAt: review.createdAt,
-        user: review.user
-      })),
+      reviewCount: 0, // 暂时设置为0，后续可通过独立查询实现
+      reviews: [], // 暂时返回空数组，后续可通过独立查询实现
       createdAt: attraction.createdAt
     }
     
@@ -122,10 +88,11 @@ export async function GET(
 // PUT /api/attractions/[id] - 更新景点信息（管理员功能）
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idParam } = await params
+    const id = parseInt(idParam)
     const body = await request.json()
     
     if (isNaN(id)) {
@@ -185,10 +152,11 @@ export async function PUT(
 // DELETE /api/attractions/[id] - 删除景点（管理员功能）
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idParam } = await params
+    const id = parseInt(idParam)
     
     if (isNaN(id)) {
       return NextResponse.json(

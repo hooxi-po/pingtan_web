@@ -128,10 +128,11 @@ async function checkExistingPOI(poi: POIData): Promise<{ exists: boolean; id?: n
         existing = await prisma.attraction.findFirst({
           where: {
             OR: [
-              { name: poi.name },
+              { nameZh: poi.name },
+              { nameEn: poi.name },
+              { nameJp: poi.name },
               {
                 AND: [
-                  { address: { contains: poi.address.substring(0, 20) } },
                   { latitude: { gte: poi.latitude - 0.001, lte: poi.latitude + 0.001 } },
                   { longitude: { gte: poi.longitude - 0.001, lte: poi.longitude + 0.001 } }
                 ]
@@ -148,7 +149,7 @@ async function checkExistingPOI(poi: POIData): Promise<{ exists: boolean; id?: n
               {
                 AND: [
                   { address: { contains: poi.address.substring(0, 20) } },
-                  { latitude: { gte: poi.latitude - 0.001, lte: poi.longitude + 0.001 } },
+                  { latitude: { gte: poi.latitude - 0.001, lte: poi.latitude + 0.001 } },
                   { longitude: { gte: poi.longitude - 0.001, lte: poi.longitude + 0.001 } }
                 ]
               }
@@ -214,12 +215,10 @@ async function saveAccommodation(poi: POIData) {
   return await prisma.accommodation.create({
     data: {
       name: poi.name,
-      nameEn: poi.name,
       description: poi.description || '',
       address: poi.address,
       latitude: poi.latitude,
       longitude: poi.longitude,
-      type: '民宿', // 默认类型
       priceRange: poi.price || '价格面议',
       facilities: poi.facilities || [],
       contact: poi.phone || '',

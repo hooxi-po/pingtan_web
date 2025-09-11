@@ -60,6 +60,7 @@ export function MonitoringProvider({ children }: MonitoringProviderProps) {
       if ('memory' in performance) {
         const checkMemoryUsage = () => {
           const memory = (performance as { memory?: { usedJSHeapSize: number; jsHeapSizeLimit: number } }).memory;
+          if (!memory) return;
           const usedMB = memory.usedJSHeapSize / 1024 / 1024;
           const limitMB = memory.jsHeapSizeLimit / 1024 / 1024;
           

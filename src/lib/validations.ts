@@ -22,12 +22,18 @@ export const restaurantCreateSchema = z.object({
   name: z.string().min(1, '餐厅名称不能为空').max(100, '餐厅名称不能超过100个字符'),
   nameEn: z.string().max(100, '英文名称不能超过100个字符').optional(),
   address: z.string().min(1, '地址不能为空').max(200, '地址不能超过200个字符'),
-  cuisine: z.string().min(1, '菜系不能为空'),
+  cuisine: z.union([
+    z.string().min(1, '菜系不能为空'),
+    z.array(z.string()).min(1, '菜系不能为空')
+  ]),
   priceRange: z.string().min(1, '价格区间不能为空'),
   openingHours: z.string().min(1, '营业时间不能为空'),
   specialties: z.array(z.string()).optional(),
   contact: z.string().optional(),
-  images: z.array(z.string().url('请提供有效的图片URL')).optional()
+  images: z.array(z.string().url('请提供有效的图片URL')).optional(),
+  latitude: z.coerce.number().min(-90).max(90).optional(),
+  longitude: z.coerce.number().min(-180).max(180).optional(),
+  description: z.string().max(2000, '描述不能超过2000个字符').optional()
 })
 
 // 景点相关验证

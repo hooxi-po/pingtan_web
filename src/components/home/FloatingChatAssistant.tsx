@@ -160,7 +160,7 @@ export default function FloatingChatAssistant() {
           </div>
         </div>
         <div className="flex-1 overflow-hidden">
-          <ItineraryGenerator />
+          <ItineraryGenerator onClose={() => setShowItineraryGenerator(false)} />
         </div>
       </div>
     )

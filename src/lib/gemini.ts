@@ -57,8 +57,8 @@ export class GeminiService {
     } catch (error) {
       console.error('Gemini API 调用失败:', error);
       console.error('错误详情:', {
-        message: error.message,
-        stack: error.stack,
+        message: (error as any)?.message,
+        stack: (error as any)?.stack,
         apiKey: process.env.GEMINI_API_KEY ? '已配置' : '未配置'
       });
       

@@ -84,7 +84,7 @@ class PerformanceMonitor {
     }
     
     const memory = (performance as { memory?: { usedJSHeapSize: number } }).memory;
-    return memory.usedJSHeapSize / 1024 / 1024; // MB
+    return (memory?.usedJSHeapSize ?? 0) / 1024 / 1024; // MB
   }
 
   // 添加指标
