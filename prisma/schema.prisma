@@ -1,0 +1,215 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 景点表
+model Attraction {
+  id            Int      @id @default(autoincrement())
+  nameZh        String   @map("name_zh") @db.VarChar(200)
+  nameEn        String?  @map("name_en") @db.VarChar(200)
+  nameJp        String?  @map("name_jp") @db.VarChar(200)
+  descriptionZh String?  @map("description_zh") @db.Text
+  descriptionEn String?  @map("description_en") @db.Text
+  descriptionJp String?  @map("description_jp") @db.Text
+  latitude      Float?
+  longitude     Float?
+  openTime      String?  @map("open_time") @db.VarChar(100)
+  ticketPrice   Decimal? @map("ticket_price") @db.Decimal(10, 2)
+  popularity    Int      @default(0)
+  images        String[] @default([])
+  tags          String[] @default([])
+  estimatedTime String?  @map("estimated_time") @db.VarChar(50)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  itineraryItems ItineraryItem[]
+
+  @@map("attractions")
+}
+
+// 民宿表
+model Accommodation {
+  id            Int      @id @default(autoincrement())
+  name          String   @db.VarChar(200)
+  description   String?  @db.Text
+  address       String   @db.VarChar(300)
+  latitude      Float?
+  longitude     Float?
+  priceRange    String   @map("price_range") @db.VarChar(100) // 如：¥200-500/晚
+  roomTypes     String[] @map("room_types") @default([]) // 房型列表
+  facilities    String[] @default([]) // 设施服务
+  contact       String?  @db.VarChar(100) // 联系方式
+  images        String[] @default([])
+  tags          String[] @default([])
+  rating        Float?   @default(0)
+  reviewCount   Int      @map("review_count") @default(0)
+  nearbyAttractions String[] @map("nearby_attractions") @default([]) // 附近景点ID
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("accommodations")
+}
+
+// 餐厅表
+model Restaurant {
+  id            Int      @id @default(autoincrement())
+  name          String   @db.VarChar(200)
+  description   String?  @db.Text
+  address       String   @db.VarChar(300)
+  latitude      Float?
+  longitude     Float?
+  cuisine       String[] @default([]) // 菜系特色
+  priceRange    String   @map("price_range") @db.VarChar(100) // 如：¥50-100/人
+  openHours     String?  @map("open_hours") @db.VarChar(200) // 营业时间
+  specialties   String[] @default([]) // 招牌菜品
+  contact       String?  @db.VarChar(100) // 联系方式
+  images        String[] @default([])
+  tags          String[] @default([])
+  rating        Float?   @default(0)
+  reviewCount   Int      @map("review_count") @default(0)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("restaurants")
+}
+
+// 行程推荐表
+model Itinerary {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(200)
+  description String?  @db.Text
+  tags        String[] @default([])
+  days        Int
+  budget      Decimal? @db.Decimal(10, 2)
+  isPublic    Boolean  @map("is_public") @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  items   ItineraryItem[]
+
+  @@map("itineraries")
+}
+
+// 行程项目表
+model ItineraryItem {
+  id           Int        @id @default(autoincrement())
+  itineraryId  Int        @map("itinerary_id")
+  attractionId Int        @map("attraction_id")
+  day          Int
+  order        Int
+  duration     Int?       // 停留时间（分钟）
+  notes        String?    @db.Text
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  // 关联关系
+  itinerary  Itinerary  @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  attraction Attraction @relation(fields: [attractionId], references: [id])
+
+  @@map("itinerary_items")
+}
+
+// 新闻资讯表
+model News {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(200)
+  content   String   @db.Text
+  summary   String?  @db.VarChar(500)
+  lang      String   @default("zh") @db.VarChar(10)
+  author    String?  @db.VarChar(100)
+  images    String[] @default([])
+  tags      String[] @default([])
+  published Boolean  @default(false)
+  viewCount Int      @map("view_count") @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  userActions UserAction[]
+
+  @@map("news")
+}
+
+// NextAuth.js 用户认证模型
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  passwordHash  String?   @map("password_hash") // 用于凭据登录
+  provider      String?   // OAuth提供商
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  accounts    Account[]
+  sessions    Session[]
+  userActions UserAction[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// 用户行为记录表
+model UserAction {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  actionType String   @map("action_type") // favorite, like, visit, etc.
+  targetType String   @map("target_type") // attraction, news, etc.
+  targetId   String   @map("target_id")
+  newsId     Int?     @map("news_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  news News? @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, actionType, targetType, targetId])
+  @@map("user_actions")
+}

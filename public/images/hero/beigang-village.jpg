@@ -1,0 +1,71 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="villageGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F0E68C;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#DAA520;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="stoneGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#A9A9A9;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#696969;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2F4F4F;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="seaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4682B4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 天空背景 -->
+  <rect width="1920" height="400" fill="url(#villageGradient)"/>
+  
+  <!-- 远山 -->
+  <polygon points="0,300 400,200 800,250 1200,180 1600,220 1920,200 1920,400 0,400" fill="#8FBC8F" opacity="0.6"/>
+  
+  <!-- 石头厝建筑群 -->
+  <!-- 第一排房屋 -->
+  <rect x="200" y="500" width="180" height="200" fill="url(#stoneGradient)" rx="5"/>
+  <polygon points="200,500 290,450 380,500" fill="#8B4513"/>
+  <rect x="240" y="580" width="30" height="50" fill="#654321"/>
+  <rect x="320" y="560" width="25" height="25" fill="#4A4A4A"/>
+  
+  <rect x="450" y="480" width="200" height="220" fill="url(#stoneGradient)" rx="5"/>
+  <polygon points="450,480 550,430 650,480" fill="#8B4513"/>
+  <rect x="500" y="580" width="35" height="55" fill="#654321"/>
+  <rect x="580" y="540" width="30" height="30" fill="#4A4A4A"/>
+  
+  <rect x="720" y="520" width="160" height="180" fill="url(#stoneGradient)" rx="5"/>
+  <polygon points="720,520 800,470 880,520" fill="#8B4513"/>
+  <rect x="750" y="600" width="28" height="45" fill="#654321"/>
+  
+  <!-- 第二排房屋 -->
+  <rect x="1000" y="460" width="220" height="240" fill="url(#stoneGradient)" rx="5"/>
+  <polygon points="1000,460 1110,410 1220,460" fill="#8B4513"/>
+  <rect x="1050" y="580" width="40" height="60" fill="#654321"/>
+  <rect x="1150" y="520" width="35" height="35" fill="#4A4A4A"/>
+  
+  <rect x="1300" y="500" width="180" height="200" fill="url(#stoneGradient)" rx="5"/>
+  <polygon points="1300,500 1390,450 1480,500" fill="#8B4513"/>
+  <rect x="1340" y="580" width="32" height="52" fill="#654321"/>
+  
+  <!-- 渔船 -->
+  <ellipse cx="150" cy="750" rx="80" ry="20" fill="#8B4513"/>
+  <rect x="130" y="730" width="40" height="20" fill="#A0522D"/>
+  <line x1="150" y1="730" x2="150" y2="680" stroke="#654321" stroke-width="3"/>
+  
+  <ellipse cx="1750" cy="780" rx="100" ry="25" fill="#8B4513"/>
+  <rect x="1720" y="755" width="60" height="25" fill="#A0522D"/>
+  
+  <!-- 海洋 -->
+  <rect y="700" width="1920" height="380" fill="url(#seaGradient)"/>
+  
+  <!-- 海浪 -->
+  <path d="M0 750 Q320 730 640 750 T1280 750 Q1600 730 1920 750 L1920 1080 L0 1080 Z" fill="#5F9EA0" opacity="0.6"/>
+  
+  <!-- 渔网 -->
+  <path d="M300 650 Q350 640 400 650 Q450 640 500 650" stroke="#8B4513" stroke-width="2" fill="none" opacity="0.7"/>
+  <circle cx="350" cy="645" r="3" fill="#654321"/>
+  <circle cx="450" cy="645" r="3" fill="#654321"/>
+  
+
+</svg>

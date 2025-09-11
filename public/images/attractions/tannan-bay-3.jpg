@@ -1,0 +1,52 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sunsetGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFE66D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8E53;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="eveningSeaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2C5F2D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4A90E2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sunset Sky -->
+  <rect width="800" height="350" fill="url(#sunsetGradient)"/>
+  
+  <!-- Evening Sea -->
+  <rect y="350" width="800" height="150" fill="url(#eveningSeaGradient)"/>
+  
+  <!-- Beach -->
+  <rect y="500" width="800" height="100" fill="#D2B48C"/>
+  
+  <!-- Setting Sun -->
+  <circle cx="200" cy="280" r="60" fill="#FF4500" opacity="0.9"/>
+  <circle cx="200" cy="280" r="45" fill="#FFD700" opacity="0.8"/>
+  
+  <!-- Sun Reflection -->
+  <ellipse cx="200" cy="420" rx="30" ry="80" fill="#FFD700" opacity="0.3"/>
+  
+  <!-- Rocks -->
+  <ellipse cx="500" cy="480" rx="80" ry="40" fill="#696969"/>
+  <ellipse cx="520" cy="460" rx="60" ry="30" fill="#808080"/>
+  <ellipse cx="480" cy="470" rx="40" ry="20" fill="#A9A9A9"/>
+  
+  <!-- Palm Trees -->
+  <rect x="650" y="400" width="8" height="100" fill="#8B4513"/>
+  <ellipse cx="654" cy="390" rx="25" ry="15" fill="#228B22"/>
+  <ellipse cx="654" cy="380" rx="30" ry="12" fill="#32CD32"/>
+  <ellipse cx="654" cy="385" rx="20" ry="18" fill="#228B22"/>
+  
+  <rect x="720" y="420" width="6" height="80" fill="#8B4513"/>
+  <ellipse cx="723" cy="410" rx="20" ry="12" fill="#228B22"/>
+  <ellipse cx="723" cy="405" rx="25" ry="10" fill="#32CD32"/>
+  
+  <!-- Birds -->
+  <path d="M100,150 Q110,140 120,150" stroke="#333" stroke-width="2" fill="none"/>
+  <path d="M110,160 Q120,150 130,160" stroke="#333" stroke-width="2" fill="none"/>
+  <path d="M300,120 Q310,110 320,120" stroke="#333" stroke-width="1.5" fill="none"/>
+  
+  <!-- Text -->
+  <text x="400" y="550" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#8B4513">坛南湾日落美景</text>
+</svg>

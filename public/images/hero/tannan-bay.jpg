@@ -1,0 +1,33 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="oceanGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#4682B4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#191970;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="beachGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F5DEB3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DEB887;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 天空背景 -->
+  <rect width="1920" height="400" fill="url(#oceanGradient)"/>
+  
+  <!-- 海洋 -->
+  <rect y="400" width="1920" height="480" fill="url(#oceanGradient)"/>
+  
+  <!-- 海浪效果 -->
+  <path d="M0 600 Q480 580 960 600 T1920 600 L1920 880 L0 880 Z" fill="#4682B4" opacity="0.8"/>
+  <path d="M0 650 Q320 630 640 650 T1280 650 Q1600 630 1920 650 L1920 880 L0 880 Z" fill="#5F9EA0" opacity="0.6"/>
+  
+  <!-- 沙滩 -->
+  <rect y="880" width="1920" height="200" fill="url(#beachGradient)"/>
+  
+  <!-- 装饰性元素 -->
+  <circle cx="300" cy="200" r="80" fill="#FFD700" opacity="0.8"/>
+  <circle cx="1600" cy="150" r="60" fill="white" opacity="0.7"/>
+  <circle cx="1650" cy="180" r="40" fill="white" opacity="0.5"/>
+  
+
+</svg>

@@ -1,0 +1,12 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="avatarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="60" fill="url(#avatarGradient)"/>
+  <circle cx="60" cy="45" r="20" fill="white" opacity="0.9"/>
+  <path d="M30 95 C30 80, 42 70, 60 70 C78 70, 90 80, 90 95" fill="white" opacity="0.9"/>
+  <text x="60" y="110" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" opacity="0.7">用户头像</text>
+</svg>

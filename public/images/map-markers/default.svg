@@ -1,0 +1,22 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景圆形 -->
+  <circle cx="16" cy="16" r="14" fill="#6B7280" stroke="white" stroke-width="2"/>
+  
+  <!-- 默认图标 - 蓝眼泪 -->
+  <g transform="translate(8, 8)">
+    <!-- 水滴形状 -->
+    <path d="M8 2C8 2 4 6 4 10C4 12.2 5.8 14 8 14C10.2 14 12 12.2 12 10C12 6 8 2 8 2Z" fill="#3B82F6" stroke="white" stroke-width="1"/>
+    
+    <!-- 发光效果 -->
+    <circle cx="8" cy="10" r="2" fill="#60A5FA" opacity="0.8"/>
+    <circle cx="8" cy="10" r="1" fill="#DBEAFE"/>
+    
+    <!-- 小星星装饰 -->
+    <circle cx="6" cy="8" r="0.5" fill="#FBBF24"/>
+    <circle cx="10" cy="9" r="0.3" fill="#FBBF24"/>
+    <circle cx="7" cy="12" r="0.4" fill="#FBBF24"/>
+  </g>
+  
+  <!-- 底部指针 -->
+  <path d="M16 28 L12 24 L20 24 Z" fill="#6B7280" stroke="white" stroke-width="1"/>
+</svg>

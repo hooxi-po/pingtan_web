@@ -1,0 +1,49 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sunsetGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFE4E1;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#FFA07A;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#FF6347;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF4500;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="seaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#20B2AA;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#008B8B;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="sandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F4A460;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D2B48C;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 天空背景 -->
+  <rect width="1920" height="500" fill="url(#sunsetGradient)"/>
+  
+  <!-- 太阳 -->
+  <circle cx="1600" cy="200" r="100" fill="#FFD700" opacity="0.9"/>
+  <circle cx="1600" cy="200" r="120" fill="#FFA500" opacity="0.5"/>
+  
+  <!-- 海洋 -->
+  <rect y="500" width="1920" height="380" fill="url(#seaGradient)"/>
+  
+  <!-- 海浪 -->
+  <path d="M0 650 Q240 630 480 650 T960 650 Q1200 630 1440 650 T1920 650 L1920 880 L0 880 Z" fill="#48D1CC" opacity="0.7"/>
+  <path d="M0 700 Q320 680 640 700 T1280 700 Q1600 680 1920 700 L1920 880 L0 880 Z" fill="#40E0D0" opacity="0.5"/>
+  
+  <!-- 沙滩 -->
+  <rect y="880" width="1920" height="200" fill="url(#sandGradient)"/>
+  
+  <!-- 沙滩纹理 -->
+  <path d="M0 920 Q480 910 960 920 T1920 920" stroke="#DEB887" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M0 950 Q320 940 640 950 T1280 950 Q1600 940 1920 950" stroke="#DEB887" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <!-- 椰树剪影 -->
+  <rect x="100" y="700" width="20" height="180" fill="#8B4513"/>
+  <ellipse cx="110" cy="680" rx="60" ry="30" fill="#228B22" opacity="0.8"/>
+  <ellipse cx="110" cy="690" rx="50" ry="25" fill="#32CD32" opacity="0.7"/>
+  
+  <rect x="1800" y="720" width="15" height="160" fill="#8B4513"/>
+  <ellipse cx="1807" cy="700" rx="45" ry="25" fill="#228B22" opacity="0.8"/>
+  
+
+</svg>

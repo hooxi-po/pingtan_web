@@ -1,0 +1,15 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="checkinGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FEE2E2;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FCA5A5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EF4444;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="300" height="200" fill="url(#checkinGradient3)"/>
+  <rect x="120" y="80" width="15" height="60" fill="white" opacity="0.9"/>
+  <rect x="165" y="70" width="15" height="70" fill="white" opacity="0.9"/>
+  <ellipse cx="150" cy="160" rx="60" ry="20" fill="white" opacity="0.7"/>
+  <rect x="50" y="160" width="200" height="30" rx="15" fill="white" opacity="0.9"/>
+  <text x="150" y="180" text-anchor="middle" fill="#991B1B" font-family="Arial, sans-serif" font-size="14" font-weight="bold">石牌洋夕阳</text>
+</svg>

@@ -1,0 +1,23 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景圆形 -->
+  <circle cx="16" cy="16" r="14" fill="#8B5CF6" stroke="white" stroke-width="2"/>
+  
+  <!-- 野生海岸图标 -->
+  <g transform="translate(6, 6)">
+    <!-- 山峰 -->
+    <path d="M2 16 L6 8 L10 12 L14 6 L18 16" fill="#A78BFA" stroke="white" stroke-width="1"/>
+    
+    <!-- 树木 -->
+    <circle cx="4" cy="14" r="1.5" fill="#34D399"/>
+    <line x1="4" y1="15.5" x2="4" y2="18" stroke="#059669" stroke-width="1"/>
+    
+    <circle cx="16" cy="13" r="1.2" fill="#34D399"/>
+    <line x1="16" y1="14.2" x2="16" y2="16.5" stroke="#059669" stroke-width="1"/>
+    
+    <!-- 海浪 -->
+    <path d="M1 18c1.5-0.5 3 0.5 4.5-0.5s3 0.5 4.5-0.5s3 0.5 4.5-0.5s3 0.5 4.5-0.5" stroke="#60A5FA" stroke-width="1" fill="none" stroke-linecap="round"/>
+  </g>
+  
+  <!-- 底部指针 -->
+  <path d="M16 28 L12 24 L20 24 Z" fill="#8B5CF6" stroke="white" stroke-width="1"/>
+</svg>
