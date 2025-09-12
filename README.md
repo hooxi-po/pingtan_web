@@ -70,7 +70,7 @@
    cp .env.example .env.local
    ```
    
-   配置以下环境变量：
+   配置以下环境变量（建议基于 .env.example 复制为 .env.local；.env.local 的值会覆盖 .env）：
    ```env
    # 数据库
    DATABASE_URL="postgresql://username:password@localhost:5432/pingtan_tourism"
@@ -80,7 +80,7 @@
    NEXTAUTH_SECRET="your-secret-key"
    
    # 百度地图API
-   NEXT_PUBLIC_BAIDU_MAP_API_KEY="your-baidu-map-browser-key"  # 浏览器端密钥
+   NEXT_PUBLIC_BAIDU_MAP_JS_API_KEY="your-baidu-map-browser-key"  # 浏览器端密钥
    BAIDU_MAP_API_KEY="your-baidu-map-server-key"              # 服务端密钥
    
    # Gemini AI
@@ -179,7 +179,7 @@ const weather = await fetch('/api/weather?location=平潭');
 ## 📁 项目结构
 
 ```
-pingtan-tourism/
+pingtan_web/
 ├── src/
 │   ├── app/                 # Next.js App Router页面
 │   │   ├── api/             # API路由
@@ -288,7 +288,8 @@ docker run -p 3000:3000 pingtan-tourism
 - [Tailwind CSS](https://tailwindcss.com/) - CSS框架
 - [Prisma](https://www.prisma.io/) - 数据库ORM
 - [Google Gemini](https://ai.google.dev/) - AI服务
-- [高德地图](https://lbs.amap.com/) - 地图服务
+- [百度地图](https://lbsyun.baidu.com/) - 地图服务
+- [高德地图](https://lbs.amap.com/) - 导航深链支持
 
 ## 📞 联系方式
 
