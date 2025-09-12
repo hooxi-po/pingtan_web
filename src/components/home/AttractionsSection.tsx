@@ -20,7 +20,7 @@ const attractions = [
     id: '2',
     title: '坛南湾',
     description: '绵长的海岸线，洁白的沙滩，是追逐"蓝眼泪"的最佳地点之一。',
-    image: '/images/attractions/tannanwan.svg',
+    image: '/images/attractions/tannanwan.jpg',
     category: '海滩度假',
     href: '/attractions/tannanwan'
   },
@@ -28,7 +28,7 @@ const attractions = [
     id: '3',
     title: '环岛路',
     description: '被誉为中国最美环岛路之一，骑行或自驾，一路皆是无敌海景。',
-    image: '/images/attractions/huandaolu.svg',
+    image: '/images/attractions/huandaolu.jpg',
     category: '风景道路',
     href: '/attractions/huandaolu'
   }
@@ -71,7 +71,7 @@ export default function AttractionsSection() {
                     }`}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
                   <div className="absolute top-4 left-4">
                     <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                       {attraction.category}

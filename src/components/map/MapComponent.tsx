@@ -191,7 +191,7 @@ export default function MapComponent({
 }: MapComponentProps) {
   // 状态管理
   const [mapInstance, setMapInstance] = useState<BMapGLInstance | null>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(true);
   const [currentCenter, setCurrentCenter] = useState<[number, number]>(DEFAULT_CONFIG.center);
   const [currentZoom, setCurrentZoom] = useState<number>(DEFAULT_CONFIG.zoom);
   
@@ -229,32 +229,56 @@ export default function MapComponent({
       try {
         const point = new window.BMapGL.Point(markerData.position[0], markerData.position[1]);
         
-        // 创建自定义图标
-        let iconUrl = '/images/map-markers/default.svg';
-        if (markerData.icon) {
-          iconUrl = markerData.icon;
-        } else {
-          // 根据类型设置默认图标
-          const typeIconMap: { [key: string]: string } = {
-            'beach': '/images/map-markers/beach.svg',
-            'viewpoint': '/images/map-markers/viewpoint.svg', 
-            'wild': '/images/map-markers/wild.svg',
-            'dock': '/images/map-markers/dock.svg',
-            'scenic': '/images/map-markers/scenic.svg'
-          };
-          iconUrl = typeIconMap[markerData.type || 'default'] || '/images/map-markers/default.svg';
-        }
+        // 创建绿色圆形标记图标
+        const createGreenCircleIcon = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 24;
+          canvas.height = 24;
+          const ctx = canvas.getContext('2d');
+          
+          if (ctx) {
+            // 绘制绿色圆形
+            ctx.fillStyle = '#22c55e'; // 绿色
+            ctx.beginPath();
+            ctx.arc(12, 12, 10, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // 绘制白色边框
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+          
+          return canvas.toDataURL();
+        };
         
         const icon = new window.BMapGL.Icon(
-          iconUrl,
-          new window.BMapGL.Size(32, 32),
+          createGreenCircleIcon(),
+          new window.BMapGL.Size(24, 24),
           {
-            anchor: new window.BMapGL.Size(16, 32),
-            imageSize: new window.BMapGL.Size(32, 32)
+            anchor: new window.BMapGL.Size(12, 12),
+            imageSize: new window.BMapGL.Size(24, 24)
           }
         );
         
         const marker = new window.BMapGL.Marker(point, { icon });
+        
+        // 添加文本标签
+        const label = new window.BMapGL.Label(markerData.title, {
+          offset: new window.BMapGL.Size(15, -5)
+        });
+        label.setStyle({
+          color: '#ffffff',
+          backgroundColor: '#22c55e',
+          border: 'none',
+          borderRadius: '12px',
+          padding: '4px 8px',
+          fontSize: '12px',
+          fontWeight: '500',
+          whiteSpace: 'nowrap',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+        });
+        marker.setLabel(label);
 
         // 添加点击事件
         marker.addEventListener('click', () => {

@@ -59,7 +59,7 @@ export default function BlueTearsSection() {
         <div className="md:w-1/2 h-64 md:h-80 rounded-lg overflow-hidden shadow-2xl scroll-reveal" style={{ transitionDelay: '150ms' }}>
           <div className="relative w-full h-full">
             <Image
-              src="/images/attractions/blue-tears.svg"
+              src="/images/attractions/blue-tears.jpg"
               alt="平潭蓝眼泪奇观"
               fill
               className="object-cover hover:scale-105 transition-transform duration-700"
