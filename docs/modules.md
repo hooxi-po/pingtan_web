@@ -153,7 +153,7 @@ sequenceDiagram
   autonumber
   participant U as 用户
   participant FE as 前端(登录页/NextAuth)
-  participant API as /api/auth/[...nextauth]
+  participant API as "/api/auth/[...nextauth]"
   participant SYS as NextAuth(CredentialsProvider)
   participant DB as 数据库(Prisma -> users)
 
@@ -489,7 +489,7 @@ flowchart LR
   end
 
   subgraph API[服务端路由模块]
-    API_NextAuth[/api/auth/[...nextauth]]
+    API_NextAuth["/api/auth/[...nextauth]"]
     API_Register[/api/auth/register]
     API_ProfileUpdate[/api/profile/update]
     API_ProfileAvatar[/api/profile/avatar]
@@ -677,7 +677,7 @@ classDiagram
 
 ```mermaid
 flowchart TD
-  A[用户填写邮箱/密码] --> B[前端提交 /api/auth/[...nextauth]]
+  A[用户填写邮箱/密码] --> B["前端提交 /api/auth/[...nextauth]"]
   B --> C{Zod 校验通过?}
   C -- 否 --> C1[返回 400 字段错误]
   C -- 是 --> D[按 email 查询用户]
