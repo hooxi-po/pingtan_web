@@ -1,8 +1,12 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -10,206 +14,467 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 景点表
-model Attraction {
-  id            Int      @id @default(autoincrement())
-  nameZh        String   @map("name_zh") @db.VarChar(200)
-  nameEn        String?  @map("name_en") @db.VarChar(200)
-  nameJp        String?  @map("name_jp") @db.VarChar(200)
-  descriptionZh String?  @map("description_zh") @db.Text
-  descriptionEn String?  @map("description_en") @db.Text
-  descriptionJp String?  @map("description_jp") @db.Text
-  latitude      Float?
-  longitude     Float?
-  openTime      String?  @map("open_time") @db.VarChar(100)
-  ticketPrice   Decimal? @map("ticket_price") @db.Decimal(10, 2)
-  popularity    Int      @default(0)
-  images        String[] @default([])
-  tags          String[] @default([])
-  estimatedTime String?  @map("estimated_time") @db.VarChar(50)
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  // 关联关系
-  itineraryItems ItineraryItem[]
-
-  @@map("attractions")
-}
-
-// 民宿表
-model Accommodation {
-  id            Int      @id @default(autoincrement())
-  name          String   @db.VarChar(200)
-  description   String?  @db.Text
-  address       String   @db.VarChar(300)
-  latitude      Float?
-  longitude     Float?
-  priceRange    String   @map("price_range") @db.VarChar(100) // 如：¥200-500/晚
-  roomTypes     String[] @map("room_types") @default([]) // 房型列表
-  facilities    String[] @default([]) // 设施服务
-  contact       String?  @db.VarChar(100) // 联系方式
-  images        String[] @default([])
-  tags          String[] @default([])
-  rating        Float?   @default(0)
-  reviewCount   Int      @map("review_count") @default(0)
-  nearbyAttractions String[] @map("nearby_attractions") @default([]) // 附近景点ID
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  @@map("accommodations")
-}
-
-// 餐厅表
-model Restaurant {
-  id            Int      @id @default(autoincrement())
-  name          String   @db.VarChar(200)
-  description   String?  @db.Text
-  address       String   @db.VarChar(300)
-  latitude      Float?
-  longitude     Float?
-  cuisine       String[] @default([]) // 菜系特色
-  priceRange    String   @map("price_range") @db.VarChar(100) // 如：¥50-100/人
-  openHours     String?  @map("open_hours") @db.VarChar(200) // 营业时间
-  specialties   String[] @default([]) // 招牌菜品
-  contact       String?  @db.VarChar(100) // 联系方式
-  images        String[] @default([])
-  tags          String[] @default([])
-  rating        Float?   @default(0)
-  reviewCount   Int      @map("review_count") @default(0)
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  @@map("restaurants")
-}
-
-// 行程推荐表
-model Itinerary {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(200)
-  description String?  @db.Text
-  tags        String[] @default([])
-  days        Int
-  budget      Decimal? @db.Decimal(10, 2)
-  isPublic    Boolean  @map("is_public") @default(true)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  // 关联关系
-  items   ItineraryItem[]
-
-  @@map("itineraries")
-}
-
-// 行程项目表
-model ItineraryItem {
-  id           Int        @id @default(autoincrement())
-  itineraryId  Int        @map("itinerary_id")
-  attractionId Int        @map("attraction_id")
-  day          Int
-  order        Int
-  duration     Int?       // 停留时间（分钟）
-  notes        String?    @db.Text
-  createdAt    DateTime   @default(now()) @map("created_at")
-
-  // 关联关系
-  itinerary  Itinerary  @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
-  attraction Attraction @relation(fields: [attractionId], references: [id])
-
-  @@map("itinerary_items")
-}
-
-// 新闻资讯表
-model News {
-  id        Int      @id @default(autoincrement())
-  title     String   @db.VarChar(200)
-  content   String   @db.Text
-  summary   String?  @db.VarChar(500)
-  lang      String   @default("zh") @db.VarChar(10)
-  author    String?  @db.VarChar(100)
-  images    String[] @default([])
-  tags      String[] @default([])
-  published Boolean  @default(false)
-  viewCount Int      @map("view_count") @default(0)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // 关联关系
-  userActions UserAction[]
-
-  @@map("news")
-}
-
-// NextAuth.js 用户认证模型
-model Account {
-  id                String  @id @default(cuid())
-  userId            String  @map("user_id")
-  type              String
-  provider          String
-  providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id")
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
+// 用户模型
 model User {
   id            String    @id @default(cuid())
+  email         String    @unique
+  username      String?   @unique
+  password      String
   name          String?
-  email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
-  image         String?
-  passwordHash  String?   @map("password_hash") // 用于凭据登录
-  provider      String?   // OAuth提供商
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  avatar        String?
+  phone         String?
+  role          UserRole  @default(USER)
+  language      String    @default("zh")
+  points        Int       @default(0)
+  isVerified    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  accounts    Account[]
-  sessions    Session[]
-  userActions UserAction[]
-
+  // 关联关系
+  orders        Order[]
+  reviews       Review[]
+  favorites     Favorite[]
+  posts         Post[]
+  itineraries   Itinerary[]
+  comments      Comment[]
+  
   @@map("users")
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verification_tokens")
+enum UserRole {
+  USER
+  MERCHANT
+  ADMIN
 }
 
-// 用户行为记录表
-model UserAction {
-  id         String   @id @default(cuid())
-  userId     String   @map("user_id")
-  actionType String   @map("action_type") // favorite, like, visit, etc.
-  targetType String   @map("target_type") // attraction, news, etc.
-  targetId   String   @map("target_id")
-  newsId     Int?     @map("news_id")
-  createdAt  DateTime @default(now()) @map("created_at")
+// 景点模型
+model Attraction {
+  id            String    @id @default(cuid())
+  name          String
+  nameEn        String?
+  nameTw        String?
+  description   String
+  descriptionEn String?
+  descriptionTw String?
+  category      AttractionCategory
+  address       String
+  latitude      Float
+  longitude     Float
+  images        String[]
+  videos        String[]
+  vrUrl         String?
+  openTime      String?
+  closeTime     String?
+  ticketPrice   Float?
+  rating        Float     @default(0)
+  reviewCount   Int       @default(0)
+  isActive      Boolean   @default(true)
+  tags          String[]
+  features      String[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  news News? @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  // 关联关系
+  reviews       Review[]
+  favorites     Favorite[]
+  orders        Order[]
+  itineraryItems ItineraryItem[]
+  
+  @@map("attractions")
+}
 
-  @@unique([userId, actionType, targetType, targetId])
-  @@map("user_actions")
+enum AttractionCategory {
+  BLUE_TEARS      // 蓝眼泪
+  STONE_HOUSE     // 石头厝
+  COASTAL_ROAD    // 环岛路
+  ISLAND_EXPERIENCE // 离岛体验
+  VILLAGE         // 特色村落
+  BEACH           // 海滩
+  MOUNTAIN        // 山地景观
+  CULTURAL        // 文化景点
+  ECOLOGICAL      // 生态廊道
+}
+
+// 民宿/住宿模型
+model Accommodation {
+  id            String    @id @default(cuid())
+  name          String
+  nameEn        String?
+  nameTw        String?
+  description   String
+  descriptionEn String?
+  descriptionTw String?
+  type          AccommodationType
+  address       String
+  latitude      Float
+  longitude     Float
+  images        String[]
+  amenities     String[]
+  roomTypes     Json[]    // 房型信息
+  priceRange    String
+  rating        Float     @default(0)
+  reviewCount   Int       @default(0)
+  isActive      Boolean   @default(true)
+  contactPhone  String?
+  contactEmail  String?
+  checkInTime   String?
+  checkOutTime  String?
+  policies      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // 关联关系
+  reviews       Review[]
+  favorites     Favorite[]
+  orders        Order[]
+  rooms         Room[]
+  
+  @@map("accommodations")
+}
+
+enum AccommodationType {
+  STONE_HOUSE_HOMESTAY  // 石头厝民宿
+  BOUTIQUE_HOTEL        // 精品酒店
+  GUESTHOUSE           // 客栈
+  RESORT               // 度假村
+  FARMSTAY             // 农家乐
+}
+
+// 房间模型
+model Room {
+  id              String        @id @default(cuid())
+  accommodationId String
+  name            String
+  nameEn          String?
+  nameTw          String?
+  description     String?
+  images          String[]
+  maxGuests       Int
+  bedType         String
+  size            Float?
+  price           Float
+  isAvailable     Boolean       @default(true)
+  amenities       String[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // 关联关系
+  accommodation   Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
+  orders          Order[]
+  
+  @@map("rooms")
+}
+
+// 餐饮模型
+model Restaurant {
+  id            String    @id @default(cuid())
+  name          String
+  nameEn        String?
+  nameTw        String?
+  description   String
+  descriptionEn String?
+  descriptionTw String?
+  cuisine       String[]  // 菜系类型
+  address       String
+  latitude      Float
+  longitude     Float
+  images        String[]
+  priceRange    String
+  rating        Float     @default(0)
+  reviewCount   Int       @default(0)
+  isActive      Boolean   @default(true)
+  contactPhone  String?
+  openHours     String?
+  specialties   String[]  // 招牌菜
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // 关联关系
+  reviews       Review[]
+  favorites     Favorite[]
+  orders        Order[]
+  
+  @@map("restaurants")
+}
+
+// 订单模型
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  type            OrderType
+  status          OrderStatus @default(PENDING)
+  totalAmount     Float
+  paymentMethod   String?
+  paymentStatus   PaymentStatus @default(PENDING)
+  bookingDate     DateTime?
+  checkInDate     DateTime?
+  checkOutDate    DateTime?
+  guestCount      Int?
+  specialRequests String?
+  contactName     String
+  contactPhone    String
+  contactEmail    String?
+  
+  // 新增：优先级相关字段
+  priority        OrderPriority @default(LOW)
+  isPriority      Boolean       @default(false)
+  urgencyLevel    UrgencyLevel  @default(NORMAL)
+  priorityScore   Int           @default(0)
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // 关联关系
+  user            User        @relation(fields: [userId], references: [id])
+  attraction      Attraction? @relation(fields: [attractionId], references: [id])
+  attractionId    String?
+  accommodation   Accommodation? @relation(fields: [accommodationId], references: [id])
+  accommodationId String?
+  room            Room?       @relation(fields: [roomId], references: [id])
+  roomId          String?
+  restaurant      Restaurant? @relation(fields: [restaurantId], references: [id])
+  restaurantId    String?
+
+  @@index([userId, status])
+  @@index([priority, status])
+  @@index([isPriority])
+  @@map("orders")
+}
+
+enum OrderType {
+  ATTRACTION    // 景点门票
+  ACCOMMODATION // 住宿
+  RESTAURANT    // 餐饮
+  PACKAGE       // 套餐
+  EXPERIENCE    // 体验项目
+}
+
+enum OrderStatus {
+  PENDING       // 待确认
+  CONFIRMED     // 已确认
+  CANCELLED     // 已取消
+  COMPLETED     // 已完成
+  REFUNDED      // 已退款
+}
+
+enum PaymentStatus {
+  PENDING       // 待支付
+  PAID          // 已支付
+  FAILED        // 支付失败
+  REFUNDED      // 已退款
+}
+
+// 新增：优先级与紧急程度枚举
+enum OrderPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum UrgencyLevel {
+  NORMAL
+  TIME_SENSITIVE
+  LAST_MINUTE
+  VIP
+}
+
+// 评价模型
+model Review {
+  id              String        @id @default(cuid())
+  userId          String
+  rating          Int           // 1-5星
+  content         String
+  images          String[]
+  isRecommended   Boolean       @default(true)
+  isVerified      Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // 关联关系
+  user            User          @relation(fields: [userId], references: [id])
+  attraction      Attraction?   @relation(fields: [attractionId], references: [id])
+  attractionId    String?
+  accommodation   Accommodation? @relation(fields: [accommodationId], references: [id])
+  accommodationId String?
+  restaurant      Restaurant?   @relation(fields: [restaurantId], references: [id])
+  restaurantId    String?
+  
+  @@map("reviews")
+}
+
+// 收藏模型
+model Favorite {
+  id              String        @id @default(cuid())
+  userId          String
+  createdAt       DateTime      @default(now())
+
+  // 关联关系
+  user            User          @relation(fields: [userId], references: [id])
+  attraction      Attraction?   @relation(fields: [attractionId], references: [id])
+  attractionId    String?
+  accommodation   Accommodation? @relation(fields: [accommodationId], references: [id])
+  accommodationId String?
+  restaurant      Restaurant?   @relation(fields: [restaurantId], references: [id])
+  restaurantId    String?
+  
+  @@unique([userId, attractionId])
+  @@unique([userId, accommodationId])
+  @@unique([userId, restaurantId])
+  @@map("favorites")
+}
+
+// 行程规划模型
+model Itinerary {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  days        Int
+  budget      Float?
+  isPublic    Boolean   @default(false)
+  likes       Int       @default(0)
+  views       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // 关联关系
+  user        User      @relation(fields: [userId], references: [id])
+  items       ItineraryItem[]
+  
+  @@map("itineraries")
+}
+
+// 行程项目模型
+model ItineraryItem {
+  id            String     @id @default(cuid())
+  itineraryId   String
+  attractionId  String?
+  day           Int
+  order         Int
+  startTime     String?
+  endTime       String?
+  notes         String?
+  createdAt     DateTime   @default(now())
+
+  // 关联关系
+  itinerary     Itinerary  @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  attraction    Attraction? @relation(fields: [attractionId], references: [id])
+  
+  @@map("itinerary_items")
+}
+
+// 用户发布内容模型
+model Post {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String
+  content     String
+  images      String[]
+  videos      String[]
+  tags        String[]
+  category    PostCategory
+  likes       Int       @default(0)
+  views       Int       @default(0)
+  isPublished Boolean   @default(true)
+  isFeatured  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // 关联关系
+  user        User      @relation(fields: [userId], references: [id])
+  comments    Comment[]
+  
+  @@map("posts")
+}
+
+enum PostCategory {
+  TRAVEL_GUIDE  // 旅游攻略
+  PHOTO_SHARE   // 照片分享
+  VIDEO_SHARE   // 视频分享
+  EXPERIENCE    // 体验分享
+  FOOD_REVIEW   // 美食评价
+  ACCOMMODATION_REVIEW // 住宿评价
+}
+
+// 评论模型
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+
+  // 关联关系
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+  
+  @@map("comments")
+}
+
+// 活动/事件模型
+model Event {
+  id            String    @id @default(cuid())
+  title         String
+  titleEn       String?
+  titleTw       String?
+  description   String
+  descriptionEn String?
+  descriptionTw String?
+  category      EventCategory
+  startDate     DateTime
+  endDate       DateTime
+  location      String
+  latitude      Float?
+  longitude     Float?
+  images        String[]
+  price         Float?
+  maxParticipants Int?
+  currentParticipants Int @default(0)
+  isActive      Boolean   @default(true)
+  contactInfo   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@map("events")
+}
+
+enum EventCategory {
+  FESTIVAL      // 节庆活动
+  CULTURAL      // 文化活动
+  SPORTS        // 体育活动
+  FOOD          // 美食活动
+  WORKSHOP      // 工作坊
+  TOUR          // 导览活动
+}
+
+// 特产/商品模型
+model Product {
+  id            String    @id @default(cuid())
+  name          String
+  nameEn        String?
+  nameTw        String?
+  description   String
+  descriptionEn String?
+  descriptionTw String?
+  category      ProductCategory
+  price         Float
+  images        String[]
+  stock         Int       @default(0)
+  isActive      Boolean   @default(true)
+  origin        String?   // 产地
+  specifications String?  // 规格
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@map("products")
+}
+
+enum ProductCategory {
+  SEAFOOD       // 海产品
+  NOODLES       // 线面
+  SEAWEED       // 紫菜
+  HANDICRAFT    // 手工艺品
+  SOUVENIR      // 纪念品
+  LOCAL_SNACK   // 地方小食
 }

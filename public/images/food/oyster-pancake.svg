@@ -1,6 +1,0 @@
-<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100%" height="100%" fill="#fff3e0"/>
-  <circle cx="200" cy="150" r="80" fill="#ffb74d" stroke="#f57c00" stroke-width="2"/>
-  <text x="50%" y="40%" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#e65100">海蛎饼</text>
-  <text x="50%" y="75%" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#666">Oyster Pancake</text>
-</svg>

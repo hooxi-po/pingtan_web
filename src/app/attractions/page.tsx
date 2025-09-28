@@ -1,426 +1,291 @@
-'use client';
+"use client"
 
-import { useState, useEffect } from 'react';
-import { Search, MapPin, Star, Clock, Filter, Map } from 'lucide-react';
-import { useLocale } from '@/components/providers/LocaleProvider';
-import Image from 'next/image';
-import Link from 'next/link';
-import AdvancedSearch from '@/components/search/AdvancedSearch';
-import MapComponent from '@/components/map/MapComponent';
-import { useAttractionMap } from '@/hooks/useMap';
-
-interface SearchFilters {
-  keyword: string;
-  location: string;
-  category: string;
-  priceRange: string;
-  rating: number;
-  duration: string;
-  tags: string[];
-  sortBy: 'rating' | 'reviewCount' | 'name' | 'distance';
-  sortOrder: 'asc' | 'desc';
-}
-
-interface Attraction {
-  id: string;
-  name: string;
-  description: string;
-  image: string;
-  rating: number;
-  reviewCount: number;
-  location: string;
-  tags: string[];
-  estimatedTime: string;
-  price?: string;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
-}
-
-// 标签映射函数
-const getCategoryTags = (category: string) => {
-  const tagMappings: Record<string, string[]> = {
-    'beach': ['海滩', '游泳', '水上运动'],
-    'scenic': ['地质奇观', '观景', '摄影', '日出', '日落'],
-    'cultural': ['古村落', '文艺', '古建筑'],
-    'adventure': ['探险', '潜水', '无人岛'],
-    'historical': ['古建筑', '古村落'],
-    'entertainment': ['购物', '美食', '休闲娱乐']
-  };
-  return tagMappings[category] || [];
-};
-
-// 时长匹配函数
-const matchesDurationFilter = (estimatedTime: string, durationFilter: string) => {
-  switch (durationFilter) {
-    case '1-2': return estimatedTime.includes('1') || estimatedTime.includes('2');
-    case '2-4': return estimatedTime.includes('2') || estimatedTime.includes('3') || estimatedTime.includes('4');
-    case 'half-day': return estimatedTime.includes('半天');
-    case 'full-day': return estimatedTime.includes('全天');
-    case 'multi-day': return estimatedTime.includes('多天');
-    default: return true;
-  }
-};
-
-const mockAttractions: Attraction[] = [
-  {
-    id: '1',
-    name: '坛南湾',
-    description: '平潭最美的海湾之一，拥有细腻的沙滩和清澈的海水',
-    image: '/images/attractions/tannan-bay.jpg',
-    rating: 4.8,
-    reviewCount: 1234,
-    location: '平潭县坛南湾',
-    tags: ['海滩', '游泳', '日出'],
-    estimatedTime: '3-4小时',
-    price: '免费',
-    coordinates: { lat: 25.4444, lng: 119.7906 }
-  },
-  {
-    id: '2',
-    name: '石牌洋',
-    description: '平潭标志性景观，两座巨大的海蚀柱屹立在海中',
-    image: '/images/attractions/shipaiyang.jpg',
-    rating: 4.9,
-    reviewCount: 2156,
-    location: '平潭县苏澳镇',
-    tags: ['地质奇观', '摄影', '日落'],
-    estimatedTime: '2-3小时',
-    price: '¥30',
-    coordinates: { lat: 25.5167, lng: 119.8333 }
-  },
-  {
-    id: '3',
-    name: '龙凤头海滨浴场',
-    description: '平潭最大的海滨浴场，设施完善，适合全家游玩',
-    image: '/images/attractions/longfengtou.jpg',
-    rating: 4.6,
-    reviewCount: 987,
-    location: '平潭县龙凤头',
-    tags: ['海滩', '游泳', '水上运动'],
-    estimatedTime: '半天',
-    price: '免费',
-    coordinates: { lat: 25.5028, lng: 119.7889 }
-  },
-  {
-    id: '4',
-    name: '北港村',
-    description: '充满文艺气息的石头村落，保留了传统的闽南建筑风格',
-    image: '/images/attractions/beigang.jpg',
-    rating: 4.7,
-    reviewCount: 756,
-    location: '平潭县流水镇北港村',
-    tags: ['古村落', '文艺', '民宿'],
-    estimatedTime: '2-3小时',
-    price: '免费',
-    coordinates: { lat: 25.4167, lng: 119.7500 }
-  },
-  {
-    id: '5',
-    name: '猴研岛',
-    description: '神秘的无人岛屿，拥有独特的地质景观和丰富的海洋生物',
-    image: '/images/attractions/houyan.jpg',
-    rating: 4.5,
-    reviewCount: 432,
-    location: '平潭县东南海域',
-    tags: ['无人岛', '探险', '潜水'],
-    estimatedTime: '全天',
-    price: '¥80',
-    coordinates: { lat: 25.3833, lng: 119.8667 }
-  },
-  {
-    id: '6',
-    name: '海坛古城',
-    description: '仿古建筑群，集文化、商业、娱乐于一体的旅游综合体',
-    image: '/images/attractions/ancient-city.jpg',
-    rating: 4.3,
-    reviewCount: 1089,
-    location: '平潭县潭城镇',
-    tags: ['古建筑', '购物', '美食'],
-    estimatedTime: '3-4小时',
-    price: '免费',
-    coordinates: { lat: 25.5000, lng: 119.7833 }
-  }
-];
+import { useState } from "react"
+import Navigation from "@/components/ui/navigation"
+import FeaturedAttractions from "@/components/ui/featured-attractions"
+import LocationServices from "@/components/ui/location-services"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Globe, Phone, MapPin, Star, Camera, Sparkles, Cloud, Droplets, Compass, Wind } from "lucide-react"
 
 export default function AttractionsPage() {
-  const { t } = useLocale();
-  const [attractions, setAttractions] = useState<Attraction[]>(mockAttractions);
-  const [filteredAttractions, setFilteredAttractions] = useState<Attraction[]>(mockAttractions);
-  const [showMap, setShowMap] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [lang, setLang] = useState<"zh" | "en" | "tw">("zh")
+  const [feedback, setFeedback] = useState("")
+  const [email, setEmail] = useState("")
+  const [realtime, setRealtime] = useState({
+    blueTears: {
+      probability: 0.72,
+      level: "中",
+      bestTime: "20:00 - 23:00",
+      spots: ["坛南湾", "长江澳"],
+    },
+    tides: {
+      high: "05:42 / 18:12",
+      low: "12:01",
+    },
+    weatherRoutes: [
+      { name: "环岛路观景线", tip: "东南风稍强，建议逆时针行驶", status: "良好" },
+      { name: "北港村文化线", tip: "午后有阵雨，备轻便雨具", status: "注意" },
+    ],
+  })
 
-  // 搜索和筛选逻辑
-  const handleSearch = (filters: SearchFilters) => {
-    let filtered = attractions.filter(attraction => {
-      // 关键词搜索
-      const matchesKeyword = !filters.keyword || 
-        attraction.name.toLowerCase().includes(filters.keyword.toLowerCase()) ||
-        attraction.description.toLowerCase().includes(filters.keyword.toLowerCase()) ||
-        attraction.location.toLowerCase().includes(filters.keyword.toLowerCase());
-      
-      // 位置筛选
-      const matchesLocation = !filters.location || 
-        attraction.location.toLowerCase().includes(filters.location.toLowerCase());
-      
-      // 类型筛选
-      const matchesCategory = !filters.category || 
-        attraction.tags.some(tag => getCategoryTags(filters.category).includes(tag));
-      
-      // 价格筛选
-      const matchesPrice = !filters.priceRange || (() => {
-        const price = attraction.price || '免费';
-        switch (filters.priceRange) {
-          case 'free': return price === '免费';
-          case '0-50': return price.includes('¥') && parseInt(price.replace(/[^0-9]/g, '')) <= 50;
-          case '50-100': {
-            const num = parseInt(price.replace(/[^0-9]/g, ''));
-            return price.includes('¥') && num > 50 && num <= 100;
-          }
-          case '100-200': {
-            const num = parseInt(price.replace(/[^0-9]/g, ''));
-            return price.includes('¥') && num > 100 && num <= 200;
-          }
-          case '200+': {
-            const num = parseInt(price.replace(/[^0-9]/g, ''));
-            return price.includes('¥') && num > 200;
-          }
-          default: return true;
-        }
-      })();
-      
-      // 评分筛选
-      const matchesRating = filters.rating === 0 || attraction.rating >= filters.rating;
-      
-      // 时长筛选
-      const matchesDuration = !filters.duration || 
-        matchesDurationFilter(attraction.estimatedTime, filters.duration);
-      
-      // 标签筛选
-      const matchesTags = filters.tags.length === 0 || 
-        filters.tags.some(tag => attraction.tags.includes(tag));
-      
-      return matchesKeyword && matchesLocation && matchesCategory && 
-             matchesPrice && matchesRating && matchesDuration && matchesTags;
-    });
+  const headerTexts: Record<typeof lang, { title: string; desc: string }> = {
+    zh: { title: "平潭景点大全", desc: "探索平潭岛的自然奇观、历史文化和独特风光" },
+    en: { title: "Pingtan Attractions", desc: "Explore Pingtan's natural wonders, heritage and coastal scenery" },
+    tw: { title: "平潭景点大全", desc: "探索平潭岛的自然奇观、历史文化与独特风光" },
+  }
 
-    // 排序
-    filtered.sort((a, b) => {
-      let result = 0;
-      switch (filters.sortBy) {
-        case 'rating':
-          result = b.rating - a.rating;
-          break;
-        case 'reviewCount':
-          result = b.reviewCount - a.reviewCount;
-          break;
-        case 'name':
-          result = a.name.localeCompare(b.name);
-          break;
-        case 'distance':
-          // 这里可以根据用户位置计算距离，暂时使用默认排序
-          result = 0;
-          break;
-        default:
-          result = 0;
-      }
-      return filters.sortOrder === 'asc' ? -result : result;
-    });
+  const handleSubmitFeedback = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!feedback.trim()) {
+      alert("请填写反馈内容")
+      return
+    }
+    console.log("Feedback submit", { email, feedback })
+    alert("反馈已提交，感谢您的建议！")
+    setFeedback("")
+    setEmail("")
+  }
 
-    setFilteredAttractions(filtered);
-  };
-
-  const handleReset = () => {
-    setFilteredAttractions(attractions);
-  };
-
-  // 获取地图标记点
-  const getMapMarkers = () => {
-    return filteredAttractions.map(attraction => ({
-      id: attraction.id,
-      position: [attraction.coordinates?.lng || 119.7906, attraction.coordinates?.lat || 25.4444] as [number, number],
-      title: attraction.name,
-      content: `${attraction.description}<br/>评分: ${attraction.rating} ⭐<br/>价格: ${attraction.price || '免费'}`
-    }));
-  };
+  const refreshRealtime = () => {
+    // 模拟刷新：随机改变概率与状态
+    const p = Math.max(0, Math.min(1, Math.round((Math.random() * 0.9 + 0.05) * 100) / 100))
+    const level = p > 0.75 ? "高" : p > 0.45 ? "中" : "低"
+    const status = p > 0.7 ? "推荐" : p > 0.4 ? "可观测" : "不稳定"
+    setRealtime((prev) => ({
+      ...prev,
+      blueTears: {
+        probability: p,
+        level,
+        bestTime: ["19:30 - 23:00", "20:00 - 23:30", "20:30 - 00:00"][Math.floor(Math.random() * 3)],
+        spots: ["坛南湾", "长江澳", "澳前海域"].sort(() => 0.5 - Math.random()).slice(0, 2),
+      },
+      tides: {
+        high: ["05:42 / 18:12", "06:10 / 18:40", "05:55 / 18:25"][Math.floor(Math.random() * 3)],
+        low: ["12:01", "12:25", "11:48"][Math.floor(Math.random() * 3)],
+      },
+      weatherRoutes: [
+        { name: "环岛路观景线", tip: status === "推荐" ? "视野通透，注意防晒" : status === "可观测" ? "沿海风稍大，建议逆时针行驶" : "风浪偏大，缩短停留时间", status },
+        { name: "北港村文化线", tip: "午后或有阵雨，备轻便雨具", status: ["良好", "注意", "推荐"][Math.floor(Math.random() * 3)] },
+      ],
+    }))
+  }
 
   return (
-    <>
-      <div className="min-h-screen bg-gray-50">
-        {/* 页面头部 */}
-        <div className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              {t('attractions.title', '平潭景点')}
+    <main className="min-h-screen">
+      <Navigation />
+      <div className="pt-16">
+        {/* Page Header */}
+        <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+          <div className="container mx-auto px-4 text-center">
+            <div className="flex items-center justify-end mb-2">
+              <Badge variant="secondary" className="bg-white/20 border-white/30 text-white rounded-full px-3 py-1">
+                <Globe className="w-4 h-4 mr-2" />
+                <select
+                  aria-label="语言切换"
+                  className="bg-transparent outline-none"
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value as any)}
+                >
+                  <option value="zh">中文</option>
+                  <option value="en">English</option>
+                  <option value="tw">台語</option>
+                </select>
+              </Badge>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              {headerTexts[lang].title}
             </h1>
-            <p className="text-gray-600 max-w-2xl">
-              {t('attractions.subtitle', '探索平潭岛的自然美景和人文景观，发现属于你的完美旅程')}
+            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+              {headerTexts[lang].desc}
             </p>
           </div>
+        </section>
+        
+        {/* LBS & 附近推荐 */}
+        <LocationServices />
+
+        {/* 实时与实用信息（蓝眼泪 / 潮汐 / 天气线路） - 使用假数据 */}
+        <section className="py-12 bg-gradient-to-b from-blue-50 to-white">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-2xl font-semibold">蓝眼泪 · 潮汐 · 天气线路</h3>
+                <p className="text-muted-foreground">基于示例数据的参考信息，供出行规划</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" className="rounded-full" onClick={refreshRealtime}>模拟刷新</Button>
+                <Button variant="secondary" className="rounded-full" asChild>
+                  <a href={`https://map.baidu.com/search/${encodeURIComponent("蓝眼泪 观测点 平潭")}`} target="_blank" rel="noopener noreferrer">
+                    <MapPin className="w-4 h-4 mr-2" />观测点地图
+                  </a>
+                </Button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* 蓝眼泪预测 */}
+              <Card className="rounded-2xl bg-white/70 backdrop-blur border border-white/40">
+                <CardHeader>
+                  <CardTitle className="flex items-center"><Sparkles className="w-5 h-5 mr-2 text-blue-600"/>蓝眼泪预测</CardTitle>
+                  <CardDescription>仅供参考，实际受风浪/光污染/潮汐影响</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-sm text-muted-foreground">概率</div>
+                  <div className="text-3xl font-bold">{Math.round(realtime.blueTears.probability * 100)}%</div>
+                  <div className="mt-2 text-sm">等级：<Badge className="rounded-full" variant="outline">{realtime.blueTears.level}</Badge></div>
+                  <div className="mt-2 text-sm">最佳观测：{realtime.blueTears.bestTime}</div>
+                  <div className="mt-2 text-sm">推荐海域：{realtime.blueTears.spots.join("、")}</div>
+                </CardContent>
+              </Card>
+              {/* 潮汐信息 */}
+              <Card className="rounded-2xl bg-white/70 backdrop-blur border border-white/40">
+                <CardHeader>
+                  <CardTitle className="flex items-center"><Droplets className="w-5 h-5 mr-2 text-cyan-600"/>今日潮汐</CardTitle>
+                  <CardDescription>安排海边活动请注意涨落潮时间</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <div className="text-muted-foreground">高潮</div>
+                      <div className="text-lg font-semibold">{realtime.tides.high}</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground">低潮</div>
+                      <div className="text-lg font-semibold">{realtime.tides.low}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              {/* 天气线路建议 */}
+              <Card className="rounded-2xl bg-white/70 backdrop-blur border border-white/40">
+                <CardHeader>
+                  <CardTitle className="flex items-center"><Cloud className="w-5 h-5 mr-2 text-slate-600"/>天气线路</CardTitle>
+                  <CardDescription>根据风向/降雨的简要建议</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {realtime.weatherRoutes.map((r, i) => (
+                      <div key={i} className="rounded-xl border p-3 bg-white/60">
+                        <div className="flex items-center justify-between">
+                          <div className="font-medium flex items-center"><Compass className="w-4 h-4 mr-2"/>{r.name}</div>
+                          <Badge className="rounded-full" variant="outline">{r.status}</Badge>
+                        </div>
+                        <div className="mt-1 text-sm text-muted-foreground flex items-center"><Wind className="w-4 h-4 mr-2"/>{r.tip}</div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* 精选卡片（新增导航/预订/距离显示） */}
+        <div id="featured">
+          <FeaturedAttractions />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* 高级搜索组件 */}
-          <AdvancedSearch
-            onSearch={handleSearch}
-            onReset={handleReset}
-            className="mb-8"
-          />
-
-          {/* 视图控制和结果统计 */}
-          <div className="flex justify-between items-center mb-6">
-            <p className="text-gray-600">
-              {t('attractions.searchResults', `找到 ${filteredAttractions.length} 个景点`)}
-            </p>
-            
-            <div className="flex items-center gap-3">
-              {/* 地图切换按钮 */}
-              <button
-                onClick={() => setShowMap(!showMap)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                  showMap
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <Map className="w-4 h-4" />
-                {showMap ? t('attractions.hideMap', '隐藏地图') : t('attractions.showMap', '显示地图')}
-              </button>
-              
-              {/* 视图模式切换 */}
-              <div className="flex bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`px-3 py-1 rounded text-sm transition-colors ${
-                    viewMode === 'grid'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  {t('attractions.gridView', '网格')}
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`px-3 py-1 rounded text-sm transition-colors ${
-                    viewMode === 'list'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  {t('attractions.listView', '列表')}
-                </button>
-              </div>
+        {/* 互动与社区体验 */}
+        <section className="py-16 bg-gradient-to-b from-white to-blue-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <Badge variant="secondary" className="rounded-full bg-white/60 border border-white/50 backdrop-blur px-3 py-1">
+                <Star className="w-4 h-4 mr-2" /> 游客评价 & 游记
+              </Badge>
+              <h3 className="text-2xl font-semibold mt-3">真实体验，来自旅行者的声音</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {["蓝眼泪太震撼了！夜晚像星河洒在海面。","北港村的石头厝很有味道，照片随手出片。","环岛路自驾很惬意，沿途风景不断惊喜！"].map((text, i) => (
+                <Card key={i} className="rounded-2xl bg-white/70 backdrop-blur border border-white/40 hover:shadow-lg transition">
+                  <CardHeader>
+                    <CardTitle className="text-lg">游客评价</CardTitle>
+                    <CardDescription className="text-sm">@Traveler_{i + 1}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">{text}</p>
+                    <div className="mt-3">
+                      <Badge variant="outline" className="rounded-full">#蓝眼泪实拍</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <Button className="rounded-full" asChild>
+                <a href="/auth/signin">
+                  <Camera className="w-4 h-4 mr-2" />
+                  写游记 / 上传照片
+                </a>
+              </Button>
             </div>
           </div>
+        </section>
 
-          {/* 地图视图 */}
-          {showMap && (
-            <div className="mb-8">
-              <MapComponent
-                config={{
-                  center: [119.7906, 25.4444],
-                  zoom: 5
-                }}
-                markers={getMapMarkers()}
-                height="400px"
-                onMarkerClick={(markerId) => {
-                  // 可以添加点击标记的处理逻辑
-                  console.log('Clicked marker:', markerId);
-                }}
+        {/* 文化与特色融入 */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-semibold">平潭文化小贴士</h3>
+              <p className="text-muted-foreground">海坛焖饭、石头厝、渔船文化等在地元素</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { title: "平潭色系", desc: "海蓝 + 沙滩黄，页面设计融入海岛色彩" },
+                { title: "石头厝文化", desc: "体验传统闽南石头建筑的独特美学" },
+                { title: "台味元素", desc: "台味美食与民宿，了解多元文化" }
+              ].map((item, i) => (
+                <Card key={i} className="rounded-2xl bg-white/70 backdrop-blur border border-white/40">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{item.title}</CardTitle>
+                    <CardDescription>{item.desc}</CardDescription>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 反馈入口 */}
+        <section className="py-16 bg-gradient-to-b from-white to-blue-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-semibold">反馈建议</h3>
+              <p className="text-muted-foreground">您的意见将帮助我们持续优化体验</p>
+            </div>
+            <form onSubmit={handleSubmitFeedback} className="max-w-2xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input
+                  type="email"
+                  placeholder="邮箱 (可选)"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="rounded-xl border px-3 py-2"
+                />
+              </div>
+              <textarea
+                placeholder="请写下您的建议..."
+                rows={5}
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                className="w-full rounded-xl border px-3 py-2 mb-4"
               />
-            </div>
-          )}
-
-          {/* 景点展示 */}
-          <div className={viewMode === 'grid' 
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            : "space-y-6"
-          }>
-            {filteredAttractions.map(attraction => (
-              <Link
-                key={attraction.id}
-                href={`/attractions/${attraction.id}`}
-                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden group"
-              >
-                <div className="relative h-48">
-                  <Image
-                    src={attraction.image}
-                    alt={attraction.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    unoptimized
-                  />
-                  {attraction.price && (
-                    <div className="absolute top-3 right-3 bg-white bg-opacity-90 px-2 py-1 rounded text-sm font-medium">
-                      {attraction.price}
-                    </div>
-                  )}
-                </div>
-                
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                    {attraction.name}
-                  </h3>
-                  
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {attraction.description}
-                  </p>
-                  
-                  <div className="flex items-center gap-4 mb-3 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="font-medium">{attraction.rating}</span>
-                      <span>({attraction.reviewCount})</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{attraction.estimatedTime}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-1 text-sm text-gray-500 mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span>{attraction.location}</span>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-1">
-                    {attraction.tags.slice(0, 3).map(tag => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {attraction.tags.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
-                        +{attraction.tags.length - 3}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* 无搜索结果 */}
-          {filteredAttractions.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
-                <Search className="w-16 h-16 mx-auto" />
+              <div className="text-center">
+                <Button type="submit" className="rounded-full">提交反馈</Button>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {t('attractions.noResults', '未找到相关景点')}
-              </h3>
-              <p className="text-gray-600">
-                {t('attractions.noResultsDesc', '尝试调整搜索关键词或筛选条件')}
-              </p>
-            </div>
-          )}
+            </form>
+          </div>
+        </section>
+
+        {/* 浮动紧急按钮 */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <Button variant="destructive" className="rounded-full shadow-lg" asChild>
+            <a href="tel:110" aria-label="紧急求助">
+              <Phone className="w-5 h-5 mr-2" /> 紧急求助
+            </a>
+          </Button>
         </div>
       </div>
-    </>
-  );
+    </main>
+  )
 }

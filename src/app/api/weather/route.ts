@@ -1,79 +1,48 @@
-import { NextRequest, NextResponse } from 'next/server';
-
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const districtId = searchParams.get('city') || '350128'; // 默认平潭县
-  const dataType = searchParams.get('extensions') || 'all'; // 获取完整数据
-  
-  const apiKey = process.env.BAIDU_MAP_API_KEY;
-  
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: '百度地图API密钥未配置' },
-      { status: 500 }
-    );
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url)
+  const ak = process.env.NEXT_PUBLIC_BAIDU_WEATHER_API_KEY || process.env.BAIDU_WEATHER_API_KEY
+  if (!ak) {
+    return new Response(JSON.stringify({ error: "缺少天气AK" }), {
+      status: 500,
+      headers: { "content-type": "application/json" },
+    })
   }
+
+  const base = "https://api.map.baidu.com/weather/v1/"
+  const params = new URLSearchParams()
+  const district_id = searchParams.get("district_id")
+  const location = searchParams.get("location")
+  const data_type = searchParams.get("data_type") || "all"
+  const coordtype = searchParams.get("coordtype") || "bd09ll"
+
+  if (district_id) {
+    params.set("district_id", district_id)
+  }
+  if (location) {
+    params.set("location", location)
+    params.set("coordtype", coordtype)
+  }
+  params.set("data_type", data_type)
+  params.set("ak", ak)
+  params.set("output", "json")
+
+  const url = `${base}?${params.toString()}`
 
   try {
-    const response = await fetch(
-      `https://api.map.baidu.com/weather/v1/?district_id=${districtId}&data_type=${dataType}&ak=${apiKey}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    console.log('Weather API URL:', `https://api.map.baidu.com/weather/v1/?district_id=${districtId}&data_type=${dataType}&ak=${apiKey}`);
-
-    if (!response.ok) {
-      console.error(`HTTP error! status: ${response.status}`);
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('Weather API Response:', JSON.stringify(data, null, 2));
-    
-    // 检查百度API返回的错误状态
-    if (data.status !== 0) {
-      console.error('百度天气API错误:', data);
-      return NextResponse.json({
-        error: '百度天气API错误',
-        status: data.status,
-        message: data.message || '未知错误',
-        details: '请检查API密钥配置和白名单设置'
-      }, { status: 400 });
-    }
-    
-    // 添加CORS头
-    const headers = {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    };
-
-    return NextResponse.json(data, { headers });
-  } catch (error) {
-    console.error('获取天气数据失败:', error);
-    return NextResponse.json(
-      { 
-        error: '获取天气数据失败',
-        details: error instanceof Error ? error.message : '未知错误'
-      },
-      { status: 500 }
-    );
+    const res = await fetch(url, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    })
+    const text = await res.text()
+    return new Response(text, {
+      status: res.status,
+      headers: { "content-type": "application/json" },
+    })
+  } catch (e: any) {
+    return new Response(
+      JSON.stringify({ error: "天气服务请求失败", detail: e?.message ?? "" }),
+      { status: 502, headers: { "content-type": "application/json" } }
+    )
   }
-}
-
-// 处理OPTIONS请求（CORS预检）
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
 }
