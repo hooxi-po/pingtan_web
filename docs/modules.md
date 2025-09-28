@@ -185,3 +185,264 @@ sequenceDiagram
   - 数据访问：`src\lib\prisma.ts` 进程内复用 PrismaClient；`prisma/schema.prisma` 定义 User 模型与索引。
   - 输入校验：`src\lib\validations\auth.ts` （邮箱格式、密码长度）。
   - 安全建议：失败提示统一；加入登录节流/限频；可选账号锁定策略；记录审计日志；合理 SameSite Cookie 与 HTTPS；避免把机密信息写入 JWT。
+
+## 12. 用户注册功能时序图
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant FE as 前端(注册页)
+  participant API as /api/auth/register
+  participant DB as 数据库(Prisma -> users)
+
+  U->>FE: 填写姓名/邮箱/密码(+确认)
+  FE->>API: POST /api/auth/register { name, email, password, phone? }
+  API->>API: Zod 校验(SignUpSchema)
+  alt 校验通过
+    API->>DB: users.findUnique({ where: { email } })
+    DB-->>API: 返回 null 或 已存在用户
+    alt 邮箱未注册
+      API->>API: bcrypt.hash(password)
+      API->>DB: users.create({ data: { name,email,passwordHash,phone? } })
+      DB-->>API: 返回新用户 { id, email, name }
+      API-->>FE: 201 注册成功
+      FE-->>U: 展示成功提示/跳转登录
+    else 邮箱已存在
+      API-->>FE: 409 邮箱已注册
+      FE-->>U: 显示“邮箱已被使用”
+    end
+  else 校验失败
+    API-->>FE: 400 参数不合法
+    FE-->>U: 展示具体字段错误
+  end
+  opt 异常
+    API-->>FE: 500 内部错误
+    FE-->>U: 兜底提示
+  end
+```
+
+## 13. 个人资料更新时序图
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant FE as 前端(资料页)
+  participant API as /api/profile/update
+  participant DB as 数据库(Prisma -> users)
+
+  U->>FE: 修改资料(name/phone/avatar/language...)
+  FE->>API: POST /api/profile/update { ...fields } + Cookie(Session)
+  API->>API: getServerSession() 鉴权
+  alt 已登录
+    API->>API: Zod 校验(UpdateProfileSchema)
+    alt 校验通过
+      API->>DB: users.update({ where: { id: session.user.id }, data: fields })
+      DB-->>API: 返回更新后的用户
+      API-->>FE: 200 成功(返回选定字段)
+      FE-->>U: 展示已更新信息
+    else 校验失败
+      API-->>FE: 400 字段错误
+    end
+  else 未登录
+    API-->>FE: 401 未授权
+    FE-->>U: 跳转登录
+  end
+  opt 异常
+    API-->>FE: 500 内部错误
+  end
+```
+
+## 14. 头像上传时序图
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant FE as 前端(头像上传)
+  participant API as /api/profile/avatar
+  participant DB as 数据库(Prisma -> users)
+
+  U->>FE: 选择头像文件
+  FE->>API: POST /api/profile/avatar multipart/form-data(file)
+  API->>API: getServerSession() 鉴权
+  alt 已登录
+    API->>API: 校验文件类型/尺寸
+    alt 校验通过
+      API->>API: 处理存储(示例: base64/对象存储)
+      API->>DB: users.update({ avatar: url/base64 })
+      DB-->>API: 返回用户
+      API-->>FE: 200 { avatar }
+      FE-->>U: 预览新头像
+    else 校验失败
+      API-->>FE: 400 非法文件
+    end
+  else 未登录
+    API-->>FE: 401 未授权
+  end
+  opt 异常
+    API-->>FE: 500 内部错误
+  end
+```
+
+## 15. 订单创建时序图
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant FE as 前端(下单页)
+  participant API as /api/orders (POST)
+  participant DB as 数据库(Prisma -> orders)
+
+  U->>FE: 填写下单信息(类型/金额/时间/联系人...)
+  FE->>API: POST /api/orders { payload } + Session
+  API->>API: getServerSession() 鉴权
+  alt 已登录
+    API->>API: Zod 校验 & 业务必填检查
+    alt 校验通过
+      API->>API: 计算优先级/紧急程度/score
+      API->>DB: orders.create({ data: { userId: session.user.id, ...payload, priority... } })
+      DB-->>API: 返回订单 { id, status, priority... }
+      API-->>FE: 201 创建成功
+      FE-->>U: 展示订单详情
+    else 校验失败
+      API-->>FE: 400 参数错误
+    end
+  else 未登录
+    API-->>FE: 401 未授权
+  end
+  opt 异常
+    API-->>FE: 500 内部错误
+  end
+```
+
+## 16. 订单查询/筛选时序图
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant FE as 前端(订单列表)
+  participant API as /api/orders (GET)
+  participant DB as 数据库(Prisma -> orders)
+
+  U->>FE: 设置筛选条件(状态/时间/优先级...)
+  FE->>API: GET /api/orders?filters + Session
+  API->>API: getServerSession() 鉴权
+  alt 已登录
+    API->>API: 构建 where/orderBy/select
+    API->>DB: orders.findMany({ where, orderBy, select, take/skip })
+    DB-->>API: 返回订单列表
+    API-->>FE: 200 列表/分页信息
+    FE-->>U: 展示列表
+  else 未登录
+    API-->>FE: 401 未授权
+  end
+  opt 异常
+    API-->>FE: 500 内部错误
+  end
+```
+
+## 17. 订单更新时序图
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant FE as 前端(订单详情/管理)
+  participant API as /api/orders (PATCH)
+  participant DB as 数据库(Prisma -> orders)
+
+  U->>FE: 修改订单字段(状态/备注/优先级...)
+  FE->>API: PATCH /api/orders { id, patchFields } + Session
+  API->>API: getServerSession() 鉴权
+  alt 已登录
+    API->>DB: 校验权限(本人或管理员) [可能查询订单归属]
+    DB-->>API: 订单记录/归属信息
+    alt 有权限
+      API->>API: 校验可更新字段/状态机规则
+      API->>DB: orders.update({ where:{ id }, data: patchFields })
+      DB-->>API: 返回更新后订单
+      API-->>FE: 200 成功
+      FE-->>U: 展示更新结果
+    else 无权限
+      API-->>FE: 403 无权限
+    end
+  else 未登录
+    API-->>FE: 401 未授权
+  end
+  opt 异常
+    API-->>FE: 500 内部错误
+  end
+```
+
+## 18. 餐厅可用性查询时序图
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant FE as 前端(餐厅页面)
+  participant API as /api/restaurant/availability
+  participant DB as 数据库(Prisma -> orders)
+
+  U->>FE: 选择时间段/餐厅
+  FE->>API: GET /api/restaurant/availability?restaurantId&slotStart&slotEnd
+  API->>API: 校验参数与时间区间
+  API->>DB: 并行统计 count(CONFIRMED), count(PENDING) [时间范围]
+  DB-->>API: 返回 confirmedCount, pendingCount
+  API->>API: available = capacity(默认40) - (confirmed + pending)
+  API-->>FE: 200 { capacity, confirmedCount, pendingCount, available }
+  FE-->>U: 展示可订席位
+  opt 异常/无效参数
+    API-->>FE: 400/500 错误
+  end
+```
+
+## 19. 地图检索时序图（外部服务）
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant FE as 前端(地图搜索)
+  participant API as /api/map/search
+  participant EXT as 外部API(百度地图)
+
+  U->>FE: 输入关键词/区域
+  FE->>API: GET /api/map/search?query&region&...
+  API->>API: 读取 BAIDU_MAP_AK
+  API->>EXT: GET/place/v2/search?query&region&ak=AK&...
+  EXT-->>API: 返回搜索结果
+  API-->>FE: 200 透传/裁剪字段
+  FE-->>U: 展示地点列表
+  opt 异常/上游失败
+    EXT-->>API: 4xx/5xx 错误
+    API-->>FE: 同步状态码与错误文本
+  end
+```
+
+## 20. 天气查询时序图（外部服务）
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant FE as 前端(天气查询)
+  participant API as /api/weather
+  participant EXT as 外部API(天气服务)
+
+  U->>FE: 选择地区/坐标
+  FE->>API: GET /api/weather?district_id|location&...
+  API->>API: 读取 AK(服务端或 NEXT_PUBLIC)
+  API->>EXT: GET /weather?params&ak=AK
+  EXT-->>API: 返回天气数据
+  API-->>FE: 200 透传/标准化字段
+  FE-->>U: 展示天气信息
+  opt 异常/上游失败
+    EXT-->>API: 4xx/5xx 错误
+    API-->>FE: 同步状态码与错误文本
+  end
+```
