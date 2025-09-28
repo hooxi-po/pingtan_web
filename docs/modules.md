@@ -446,3 +446,343 @@ sequenceDiagram
     API-->>FE: 同步状态码与错误文本
   end
 ```
+
+---
+
+## 21. 图例与统一标注规范（Legend & Style Guide）
+
+- 参与者命名：统一使用 U(用户)、FE(前端)、API(服务端接口)、DB(数据库)、EXT(外部服务)。
+- 消息传递：使用实线箭头 `->>` 表示同步请求/响应；`-->>` 表示返回。
+- 逻辑分支：使用 `alt/else/end` 表示互斥分支，`opt/end` 表示可选步骤。
+- 时序编号：所有时序图启用 `autonumber` 自动编号。
+- 生命线：每个参与者均为独立生命线，跨越整个图的生命周期。
+- 备注注释：关键节点在图后附“注释”说明，或使用 Mermaid Note（如 sequenceDiagram 的 `Note over`）。
+
+```mermaid
+flowchart LR
+  subgraph Legend[图例]
+    direction TB
+    A[矩形: 处理/步骤] --> D{菱形: 条件判断}
+    D -->|是| B[矩形: 下一步]
+    D -->|否| C[矩形: 另一分支]
+    classDef api fill:#E3F2FD,stroke:#1976D2,color:#0D47A1
+    classDef ext fill:#FFF3E0,stroke:#EF6C00,color:#E65100
+    classDef db fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    API[[API 模块]]:::api --> DB[(数据库)]:::db
+    API --> EXT[[外部服务]]:::ext
+  end
+```
+
+注释：本项目各图均遵循以上命名与配色约定，API/DB/EXT在总览与流程图中使用统一样式。
+
+## 22. 系统交互总览（Components Interaction Overview）
+
+```mermaid
+flowchart LR
+  subgraph FE[前端应用]
+    FE_Login[登录/注册页]
+    FE_Profile[资料与头像]
+    FE_Orders[订单列表/详情]
+    FE_Restaurant[餐厅页面]
+    FE_Map[地图检索]
+    FE_Weather[天气查询]
+  end
+
+  subgraph API[服务端路由模块]
+    API_NextAuth[/api/auth/[...nextauth]]
+    API_Register[/api/auth/register]
+    API_ProfileUpdate[/api/profile/update]
+    API_ProfileAvatar[/api/profile/avatar]
+    API_Orders[/api/orders]
+    API_RestAvail[/api/restaurant/availability]
+    API_Map[/api/map/search]
+    API_Weather[/api/weather]
+  end
+
+  subgraph DB[数据库: Prisma/PostgreSQL]
+    DB_Users[(users)]
+    DB_Orders[(orders)]
+    DB_Restaurants[(restaurants)]
+  end
+
+  subgraph EXT[外部服务]
+    EXT_Map[百度地图 Place API]
+    EXT_Weather[天气服务]
+  end
+
+  FE_Login --> API_NextAuth
+  FE_Login --> API_Register
+
+  FE_Profile --> API_ProfileUpdate
+  FE_Profile --> API_ProfileAvatar
+
+  FE_Orders --> API_Orders
+  FE_Restaurant --> API_RestAvail
+
+  FE_Map --> API_Map
+  FE_Weather --> API_Weather
+
+  API_NextAuth --> DB_Users
+  API_Register --> DB_Users
+  API_ProfileUpdate --> DB_Users
+  API_ProfileAvatar --> DB_Users
+  API_Orders --> DB_Orders
+  API_RestAvail --> DB_Orders
+
+  API_Map --> EXT_Map
+  API_Weather --> EXT_Weather
+```
+
+注释：总览图呈现前端→API→数据库/外部服务的调用路径与模块边界，便于宏观理解组件间交互。
+
+## 23. 关键对象状态图（State Diagrams）
+
+### 23.1 订单对象（Order）状态图
+
+```mermaid
+stateDiagram-v2
+  [*] --> NEW: 创建成功
+  NEW --> PENDING_PAYMENT: 选择支付方式
+  PENDING_PAYMENT --> CONFIRMED: 支付成功/人工确认
+  PENDING_PAYMENT --> CANCELLED: 超时/用户取消
+  CONFIRMED --> IN_PROGRESS: 服务履约中(就餐/入住)
+  IN_PROGRESS --> COMPLETED: 服务完成
+  CONFIRMED --> CANCELLED: 异常/用户取消(规则受限)
+  CANCELLED --> [*]
+  COMPLETED --> [*]
+
+  note right of PENDING_PAYMENT: 可设置支付超时窗口
+  note right of CONFIRMED: 可触发餐厅占位/房间锁定
+```
+
+注释：订单状态转换受业务规则与权限控制约束，部分转换需要管理员或系统事件触发。
+
+### 23.2 会话对象（User Session）状态图
+
+```mermaid
+stateDiagram-v2
+  [*] --> UNAUTHENTICATED
+  UNAUTHENTICATED --> AUTHENTICATING: 提交登录凭证
+  AUTHENTICATING --> AUTHENTICATED: 凭证校验通过
+  AUTHENTICATING --> UNAUTHENTICATED: 凭证错误/用户不存在
+  AUTHENTICATED --> EXPIRED: Token 过期/显式登出
+  EXPIRED --> UNAUTHENTICATED
+```
+
+注释：认证由 NextAuth Credentials Provider 完成，JWT 承载 `sub` 与 `role`，服务端通过 `getServerSession` 获取会话。
+
+### 23.3 餐厅席位（Restaurant Slot/Capacity）状态图
+
+```mermaid
+stateDiagram-v2
+  [*] --> AVAILABLE: 初始可用
+  AVAILABLE --> RESERVED: 产生待确认订单(PENDING)
+  RESERVED --> CONFIRMED: 订单确认(CONFIRMED)
+  RESERVED --> AVAILABLE: 取消/超时释放
+  CONFIRMED --> RELEASED: 履约完成释放
+  RELEASED --> AVAILABLE
+```
+
+注释：席位单位可按时间片定义（如 30 分钟/桌），容量可迁移至 Restaurant 模型字段，支持分时段与包间。
+
+## 24. 类图（Class Diagram：静态结构关系）
+
+```mermaid
+classDiagram
+  class User {
+    +id: Int
+    +email: String
+    +password: String
+    +name: String
+    +phone: String
+    +avatar: String
+    +role: UserRole
+    +createdAt: Date
+    +updatedAt: Date
+  }
+
+  class Restaurant {
+    +id: Int
+    +name: String
+    +location: String
+    +phone: String
+    +capacity?: Int
+  }
+
+  class Order {
+    +id: Int
+    +userId: Int
+    +restaurantId?: Int
+    +type: OrderType
+    +status: OrderStatus
+    +totalAmount: Decimal
+    +priority: OrderPriority
+    +urgencyLevel: UrgencyLevel
+    +bookingDate?: Date
+    +createdAt: Date
+    +updatedAt: Date
+  }
+
+  User "1" --> "*" Order : places
+  Restaurant "1" --> "*" Order : receives
+  Order "*" --> "0..1" Restaurant : for
+
+  class PrismaClient {
+    +user: Repository<User>
+    +order: Repository<Order>
+    +restaurant: Repository<Restaurant>
+  }
+
+  class ApiAuthHandler {
+    +authorize(credentials)
+    +session()
+  }
+  class ApiRegisterHandler {
+    +post(SignUpPayload)
+  }
+  class ApiProfileHandler {
+    +post(UpdateProfilePayload)
+  }
+  class ApiAvatarHandler {
+    +post(FormData)
+  }
+  class ApiOrdersHandler {
+    +get(Query)
+    +post(CreateOrderPayload)
+    +patch(UpdateOrderPayload)
+  }
+  class ApiRestAvailHandler {
+    +get(restaurantId, slotStart, slotEnd)
+  }
+  class ApiMapHandler {
+    +get(params)
+  }
+  class ApiWeatherHandler {
+    +get(params)
+  }
+
+  ApiAuthHandler ..> PrismaClient : uses
+  ApiRegisterHandler ..> PrismaClient : uses
+  ApiProfileHandler ..> PrismaClient : uses
+  ApiAvatarHandler ..> PrismaClient : uses
+  ApiOrdersHandler ..> PrismaClient : uses
+  ApiRestAvailHandler ..> PrismaClient : uses
+```
+
+注释：类图兼顾实体与路由模块的静态关系，API 模块依赖 PrismaClient 进行数据访问，外部服务在路由内部调用（未在类图中展开）。
+
+## 25. 核心业务流程图（Flowcharts）
+
+### 25.1 登录流程（Login Flow）
+
+```mermaid
+flowchart TD
+  A[用户填写邮箱/密码] --> B[前端提交 /api/auth/[...nextauth]]
+  B --> C{Zod 校验通过?}
+  C -- 否 --> C1[返回 400 字段错误]
+  C -- 是 --> D[按 email 查询用户]
+  D --> E{存在用户?}
+  E -- 否 --> E1[返回 401 未授权]
+  E -- 是 --> F[bcrypt.compare 校验密码]
+  F --> G{密码匹配?}
+  G -- 否 --> G1[返回 401 未授权]
+  G -- 是 --> H[生成 JWT(session.token)]
+  H --> I[设置 Cookie/返回会话]
+  I --> J[跳转/展示登录态]
+```
+
+注释：失败提示统一，避免枚举账号；建议加入限频与审计日志。
+
+### 25.2 注册流程（Register Flow）
+
+```mermaid
+flowchart TD
+  A[用户填写注册信息] --> B[前端提交 /api/auth/register]
+  B --> C{Zod 校验通过?}
+  C -- 否 --> C1[400 参数错误]
+  C -- 是 --> D[查询邮箱是否存在]
+  D --> E{已存在?}
+  E -- 是 --> E1[409 邮箱已注册]
+  E -- 否 --> F[bcrypt.hash 密码]
+  F --> G[创建用户]
+  G --> H[201 返回基本信息]
+  H --> I[引导登录]
+```
+
+### 25.3 订单创建流程（Order Create）
+
+```mermaid
+flowchart TD
+  A[前端提交创建订单] --> B[服务端鉴权 getServerSession]
+  B --> C{已登录?}
+  C -- 否 --> C1[401 未授权]
+  C -- 是 --> D[Zod 校验 & 业务必填检查]
+  D --> E{校验通过?}
+  E -- 否 --> E1[400 参数错误]
+  E -- 是 --> F[计算优先级/紧急程度]
+  F --> G[prisma.order.create]
+  G --> H[201 返回订单]
+  H --> I[前端展示详情]
+```
+
+### 25.4 餐厅可用性计算流程（Restaurant Availability）
+
+```mermaid
+flowchart TD
+  A[前端请求: restaurantId/slotStart/slotEnd] --> B[参数校验/时间区间检查]
+  B --> C{合法?}
+  C -- 否 --> C1[400 无效参数]
+  C -- 是 --> D[并行统计 CONFIRMED/PENDING 订单数]
+  D --> E[available = capacity - (confirmed+pending)]
+  E --> F[200 返回各统计与可用数]
+  F --> G[前端展示可订席位]
+```
+
+### 25.5 资料更新与头像上传流程（Profile & Avatar）
+
+```mermaid
+flowchart TD
+  A1[资料更新: 前端提交] --> B1[鉴权 getServerSession]
+  B1 --> C1{已登录?}
+  C1 -- 否 --> C1x[401 未授权]
+  C1 -- 是 --> D1[Zod 校验字段]
+  D1 --> E1{通过?}
+  E1 -- 否 --> E1x[400 字段错误]
+  E1 -- 是 --> F1[prisma.user.update]
+  F1 --> G1[200 返回更新信息]
+
+  A2[头像上传: 前端提交文件] --> B2[鉴权 getServerSession]
+  B2 --> C2{已登录?}
+  C2 -- 否 --> C2x[401 未授权]
+  C2 -- 是 --> D2[文件类型/尺寸校验]
+  D2 --> E2{通过?}
+  E2 -- 否 --> E2x[400 非法文件]
+  E2 -- 是 --> F2[存储文件/生成URL]
+  F2 --> G2[prisma.user.update(avatar)]
+  G2 --> H2[200 返回 avatar]
+```
+
+### 25.6 地图检索与天气查询流程（External Services）
+
+```mermaid
+flowchart TD
+  %% 地图搜索
+  A[前端: 地图搜索请求] --> B[/api/map/search]
+  B --> C[读取 BAIDU_MAP_AK]
+  C --> D[服务端拉取百度地点检索]
+  D --> E[200 返回/裁剪字段]
+
+  %% 天气查询
+  A2[前端: 天气查询] --> B2[/api/weather]
+  B2 --> C2[读取 AK]
+  C2 --> D2[服务端请求天气服务]
+  D2 --> E2[200 返回/标准化字段]
+```
+
+---
+
+图例与注释说明：
+- 流程图中的矩形为处理节点，菱形为条件判断；箭头方向表示调用顺序与消息传递路径。
+- 时序图均启用自动编号，参与者生命线覆盖整个交互过程；关键分支使用 `alt/opt` 表示。
+- 状态图以 `[*]` 作为初始/结束标记，转换边文字为触发事件或业务动作。
+- 所有图表采用统一配色与命名，便于快速识别 API、数据库与外部服务边界。
