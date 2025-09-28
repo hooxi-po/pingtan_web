@@ -1,9 +1,33 @@
 # 平潭旅游 Web 平台（pingtan_web）
+> 一站式平潭旅游平台：认证、预订、地图与天气集成，5 分钟即可上手。
 
-一个基于 Next.js 15、Prisma、NextAuth 与 Tailwind CSS 的模块化应用，涵盖用户认证、个人资料、订单与优先级、餐厅可约、地图检索与天气查询等核心业务功能，面向平潭旅游场景的综合服务平台。
+![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs) ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&labelColor=20232a) ![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma) ![TailwindCSS](https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwindcss) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg) ![License](https://img.shields.io/badge/license-TBD-lightgrey)
+
+
+**如果觉得有帮助，请 Star ⭐、Fork 并分享！**
 
 - 技术栈：Next.js 15 + React 19、NextAuth、Prisma、Tailwind CSS 4、TypeScript
 - 目录结构：详见 `src/app` 页面与 `src/app/api` 接口模块；更完整的架构与交互请参考 `docs/modules.md`
+
+## 目录
+- [主要功能特性](#主要功能特性)
+- [安装指南](#安装指南)
+- [使用说明](#使用说明)
+- [配置选项](#配置选项)
+- [贡献指南](#贡献指南)
+- [许可证信息](#许可证信息)
+- [联系方式](#联系方式)
+- [背景与架构综述](#背景与架构综述)
+- [技术细节与实现要点](#技术细节与实现要点)
+- [配置矩阵与环境建议](#配置矩阵与环境建议)
+- [数据支持与实践建议](#数据支持与实践建议)
+- [风险与影响分析](#风险与影响分析)
+- [参考资料（权威来源）](#参考资料权威来源)
+- [快速开始（5 分钟）](#快速开始-5-分钟)
+- [演示与截图](#演示与截图)
+- [FAQ](#faq)
+- [致谢](#致谢)
+- [行动呼吁](#行动呼吁)
 
 ## 主要功能特性
 - 用户与认证：邮箱/密码登录、会话管理、保护路由（`/api/auth/[...nextauth]`）
@@ -160,5 +184,63 @@
 - NextAuth v4 -> v5 迁移指南：https://authjs.dev/getting-started/migrating-to-v5
 - Prisma（ORM 官方文档）：https://www.prisma.io/docs
 
----
-如需我根据你的部署环境（Vercel/Docker/自托管）生成专用部署章节、.env 示例模板以及 SLO/报警阈值建议，请告诉我目标环境与约束条件。
+
+
+## 快速开始（5 分钟）
+1. 克隆仓库并安装依赖：
+   ```bash
+   git clone https://github.com/OWNER/REPO.git
+   cd REPO
+   npm install
+   ```
+2. 配置环境变量 `.env`：
+   ```env
+   DATABASE_URL="postgresql://USER:PASS@HOST:PORT/DBNAME?schema=public"
+   NEXTAUTH_URL="http://localhost:3000"
+   NEXTAUTH_SECRET="请替换为安全随机字符串"
+   ```
+3. 初始化数据库与启动开发：
+   ```bash
+   npx prisma db push
+   npm run dev
+   ```
+4. 打开 `http://localhost:3000`，注册/登录并体验核心功能（认证、预订、地图与天气）。
+
+## 演示与截图
+> 暗/亮模式下均保持良好可读性，以下为核心页面与流程预览。
+
+- 首页与导航：
+  
+  ![首页预览](./public/hero-slide-1.png)
+
+- 目的地/风景页：
+  
+  ![风景预览](./public/hero-slide-2.png)
+
+- 主题展示：
+  
+  ![主题示例](./public/hero-windmill.png)
+
+> 建议：补充 10-30 秒的录屏 GIF/视频，展示登录与预订流程，可显著提升 Star 转化。
+
+## FAQ
+- 我可以不使用 PostgreSQL 吗？
+  - 可以修改 Prisma 连接到其他数据库，但当前示例与索引设计针对 PostgreSQL 优化，建议保持一致以获得最佳性能。
+- NEXTAUTH_SECRET 必须设置吗？
+  - 必须。它用于签名会话/JWT，需为高熵随机值，避免泄露与重放风险。
+- 如何在 5 分钟跑起来？
+  - 参考上文“快速开始”，按 4 步完成安装、配置、推送 schema 与启动开发服务。
+- 是否提供 Docker 或 Vercel 一键部署？
+  - 可以按需新增，我可为你的目标环境生成部署章节与模板。
+
+## 致谢
+- 技术栈与灵感来源：Next.js、Auth.js（NextAuth）、Prisma、Tailwind CSS、TypeScript。
+- 贡献者与社区：感谢所有提交 Issue/PR 的社区成员，你们的意见让项目更好。
+
+## 行动呼吁
+如果这个项目对你有帮助：
+- 请 Star ⭐ 支持我们，让更多人看到！
+- Fork 并实践你的想法，欢迎提交 PR 改进功能与文档。
+- 分享到你的社交网络或交流群，帮助项目成长与迭代。
+
+
