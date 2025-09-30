@@ -66,21 +66,49 @@
   - 读取 AK（NEXT_PUBLIC 或服务端）→ 调用上游 → 透传 JSON。
 - 关键文件：`src/app/api/weather/route.ts`
 
-## 7. 公共库与数据
+## 7. 通知系统模块（多渠道消息推送）
+- 目标：为平潭旅游支付系统提供高效、可靠的实时通知服务，支持多种渠道的消息推送。
+- 核心功能：
+  - 支付状态实时通知（成功/失败/退款）
+  - 多渠道推送（站内消息、邮件、短信、推送通知）
+  - 消息模板管理与个性化定制
+  - 失败重试机制与消息队列处理
+  - 通知历史记录与统计分析
+- 接口：
+  - POST `/api/notifications` - 发送通知
+  - GET `/api/notifications` - 获取通知列表
+  - GET `/api/notifications/stats` - 获取通知统计
+  - POST `/api/webhooks/payment` - 支付回调处理
+- 核心逻辑：
+  - 通知服务（NotificationService）：统一管理多渠道通知发送
+  - 队列处理（QueueProcessor）：异步处理通知任务，支持重试机制
+  - 模板引擎：支持动态内容替换与多语言
+  - 渠道适配器：邮件（SMTP/SendGrid）、短信（阿里云/腾讯云）、推送（FCM/APNs）
+- 数据模型：
+  - Notification：通知记录（id、userId、type、title、content、channel、status、metadata）
+  - NotificationTemplate：通知模板（id、name、type、subject、content、variables）
+- 关键文件：
+  - `src/lib/notification/service.ts` - 通知服务核心逻辑
+  - `src/lib/notification/queue.ts` - 队列处理器
+  - `src/lib/notification/channels/` - 各渠道适配器
+  - `src/app/api/notifications/` - 通知相关API接口
+  - `src/app/api/webhooks/payment/` - 支付回调处理
+
+## 8. 公共库与数据
 - Prisma Client 复用：`src/lib/prisma.ts`（进程内复用，开发环境挂载到 global）
 - 认证配置：`src/lib/auth.ts`（credentials provider、jwt/session 回调、pages）
 - 请求体验证（Zod）：`src/lib/validations/auth.ts`（SignIn/SignUp/UpdateProfile）
 - 数据库模型：`prisma/schema.prisma`（包含用户、餐厅、订单等实体与枚举、索引、外键）
 - SQL 导出：`prisma/schema.sql`（从 Prisma 模型生成的建库 DDL）
 
-## 8. 安全与异常（简要）
+## 9. 安全与异常（简要）
 - 鉴权与权限：NextAuth + JWT 角色；订单更新遵循“本人或管理员”。
 - 密码安全：最小长度校验 + bcrypt 散列；服务端不返回明文密码。
 - 输入校验：统一 Zod；异常返回 400（参数错误）、401（未授权）、403（无权限）、404（不存在）、5xx（服务内部/上游异常）。
 - 机密管理：AK 等仅在服务端读取；地图/天气走服务端代理。
 - 文件上传：仅图片，建议落地 OSS/S3 并做病毒扫描与大小限制。
 
-## 9. 性能与扩展（简要）
+## 10. 性能与扩展（简要）
 - 性能：
   - 精准 `select` 字段，减少数据体积。
   - 并行统计（Promise.all），提升吞吐。
@@ -93,7 +121,7 @@
 ---
 如需更详细的图示版（流程时序/领域模型关系图）或导出接口文档（OpenAPI/Swagger、Postman 集合），可在此文档基础上进一步完善。
 
-## 10. 各业务功能详细设计
+## 11. 各业务功能详细设计
 
 ### 10.1 用户与认证
 - 角色与权限

@@ -38,13 +38,16 @@ export default function SignInPage() {
       signInSchema.parse(formData)
       setErrors({})
       return true
-    } catch (error: any) {
+    } catch (error: unknown) {
       const fieldErrors: Partial<SignInInput> = {}
-      error.errors?.forEach((err: any) => {
-        if (err.path?.[0]) {
-          fieldErrors[err.path[0] as keyof SignInInput] = err.message
-        }
-      })
+      if (error && typeof error === 'object' && 'errors' in error) {
+        const zodError = error as { errors: Array<{ path?: string[]; message: string }> }
+        zodError.errors?.forEach((err) => {
+          if (err.path?.[0]) {
+            fieldErrors[err.path[0] as keyof SignInInput] = err.message
+          }
+        })
+      }
       setErrors(fieldErrors)
       return false
     }
