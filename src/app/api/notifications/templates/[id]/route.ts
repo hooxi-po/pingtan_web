@@ -34,7 +34,7 @@ const updateTemplateSchema = z.object({
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -42,7 +42,8 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const templateId = params.id
+    const { id } = await params
+    const templateId = id
 
     const template = await prisma.notificationTemplate.findUnique({
       where: { id: templateId },
@@ -77,7 +78,7 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -85,7 +86,8 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const templateId = params.id
+    const { id } = await params
+    const templateId = id
     const body = await request.json()
     const data = updateTemplateSchema.parse(body)
 
@@ -161,7 +163,7 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -169,7 +171,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const templateId = params.id
+    const { id } = await params
+    const templateId = id
 
     // 检查模板是否存在
     const existingTemplate = await prisma.notificationTemplate.findUnique({

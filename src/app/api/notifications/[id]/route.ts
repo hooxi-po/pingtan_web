@@ -19,7 +19,7 @@ const updateNotificationSchema = z.object({
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -27,7 +27,8 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const notificationId = params.id
+    const { id } = await params
+    const notificationId = id
 
     // 构建查询条件
     const where: any = { id: notificationId }
@@ -86,11 +87,11 @@ export async function GET(
 }
 
 /**
- * PATCH /api/notifications/[id] - 更新单个通知
+ * PATCH /api/notifications/[id] - 更新通知状态
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -98,7 +99,8 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const notificationId = params.id
+    const { id } = await params
+    const notificationId = id
     const body = await request.json()
     const data = updateNotificationSchema.parse(body)
 
@@ -185,11 +187,11 @@ export async function PATCH(
 }
 
 /**
- * DELETE /api/notifications/[id] - 删除单个通知
+ * DELETE /api/notifications/[id] - 删除通知
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -197,7 +199,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const notificationId = params.id
+    const { id } = await params
+    const notificationId = id
 
     // 构建查询条件
     const where: any = { id: notificationId }

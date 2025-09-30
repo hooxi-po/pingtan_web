@@ -1,12 +1,67 @@
 # 平潭旅游支付通知系统 - 更新日志
 
-**更新日期**: 2025-09-30  
-**更新时间**: 22:22:42  
-**版本**: v1.1.0  
+**日期**: 2025-09-30  
+**更新时间**: 22:30:24
 
-## 📋 更新概述
+## 📋 今日更新概览
 
-本次更新主要完成了TypeScript编译错误修复和通知系统文档的全面完善，提升了系统的稳定性和可维护性。
+### 🔧 代码修复 (5个文件)
+1. **支付回调签名修复** - `src/app/api/webhooks/payment/route.ts`
+2. **邮件发送方法名修复** - `src/lib/notification/channels/email.ts`
+3. **通知服务构造参数修复** - `src/app/api/notifications/route.ts`
+4. **统计接口方法名修复** - `src/app/api/notifications/stats/route.ts`
+5. **注册页面错误处理修复** - `src/app/auth/signup/page.tsx`
+
+### 🔧 构建错误修复 (2个问题)
+1. **依赖缺失修复** - 安装缺失的 `nodemailer` 依赖包
+2. **Next.js 15 类型兼容性修复** - 修复API路由中 `params` 参数类型问题
+
+### 📚 文档更新 (3个文件)
+1. **模块文档更新** - `docs/modules.md`
+   - 新增第7章：通知系统模块（多渠道消息推送）
+   - 重新编号后续章节（8-11章）
+   
+2. **系统说明文档重写** - `README_NOTIFICATION_SYSTEM.md`
+   - 重写系统概述，突出核心特性
+   - 详细技术架构说明
+   - 新增快速开始指南
+   
+3. **API文档新增** - `docs/notification-api.md`
+   - 完整API规范说明
+   - 响应格式和参数详情
+   - 代码示例和测试工具指导
+
+## 🔧 技术修复详情
+
+### 构建错误修复
+
+#### 1. 依赖缺失问题
+- **问题**: Vercel构建时出现 `Module not found: Can't resolve 'nodemailer'` 错误
+- **原因**: `package.json` 中缺少 `nodemailer` 运行时依赖
+- **解决**: 执行 `npm install nodemailer` 安装依赖包
+- **修复时间**: 22:25:00
+
+#### 2. Next.js 15 类型兼容性问题
+- **问题**: API路由中 `params` 参数类型不兼容
+- **原因**: Next.js 15 将动态路由参数改为异步 `Promise` 类型
+- **影响文件**:
+  - `src/app/api/notifications/[id]/route.ts` (GET, PATCH, DELETE方法)
+  - `src/app/api/notifications/templates/[id]/route.ts` (GET, PATCH, DELETE方法)
+- **解决方案**: 
+  ```typescript
+  // 修复前
+  { params }: { params: { id: string } }
+  
+  // 修复后
+  { params }: { params: Promise<{ id: string }> }
+  const { id } = await params
+  ```
+- **修复时间**: 22:28:00
+
+### 构建验证
+- **本地构建**: ✅ 成功 (22:30:00)
+- **构建输出**: 无错误，所有路由正常编译
+- **部署状态**: 准备就绪
 
 ## 🔧 代码修复
 
