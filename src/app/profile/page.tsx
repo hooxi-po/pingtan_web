@@ -12,6 +12,7 @@ import Navigation from "@/components/ui/navigation"
 import { User, Mail, Phone, Edit, Save, X, Settings, Upload } from "lucide-react"
 import { OrderManagement } from "@/components/ui/order-management"
 import { Badge } from "@/components/ui/badge"
+import TripPlanner from "@/components/ui/trip-planner"
 
 export default function ProfilePage() {
   const { data: session, status } = useSession()
