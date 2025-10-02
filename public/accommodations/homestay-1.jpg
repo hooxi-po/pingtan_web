@@ -1,0 +1,117 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sunsetSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF9A8B;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFECD2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A8E6CF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="homestayBuilding" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFF8DC;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F5F5DC;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="seaWater" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#48CAE4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0077BE;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sunset Sky -->
+  <rect width="400" height="180" fill="url(#sunsetSky)"/>
+  
+  <!-- Sea -->
+  <rect y="180" width="400" height="120" fill="url(#seaWater)"/>
+  
+  <!-- Beach -->
+  <rect y="170" width="400" height="20" fill="#F4A460"/>
+  
+  <!-- Main Homestay Building -->
+  <rect x="120" y="100" width="160" height="100" fill="url(#homestayBuilding)" stroke="#D2B48C" stroke-width="2"/>
+  
+  <!-- Roof -->
+  <polygon points="110,100 200,70 290,100" fill="#CD853F"/>
+  <polygon points="115,95 200,75 285,95" fill="#DAA520"/>
+  
+  <!-- Chimney -->
+  <rect x="240" y="60" width="12" height="25" fill="#8B4513"/>
+  <rect x="238" y="58" width="16" height="4" fill="#A0522D"/>
+  
+  <!-- Windows -->
+  <rect x="140" y="120" width="25" height="25" fill="#87CEEB" stroke="#4682B4" stroke-width="2"/>
+  <line x1="152.5" y1="120" x2="152.5" y2="145" stroke="#4682B4" stroke-width="1"/>
+  <line x1="140" y1="132.5" x2="165" y2="132.5" stroke="#4682B4" stroke-width="1"/>
+  
+  <rect x="235" y="120" width="25" height="25" fill="#87CEEB" stroke="#4682B4" stroke-width="2"/>
+  <line x1="247.5" y1="120" x2="247.5" y2="145" stroke="#4682B4" stroke-width="1"/>
+  <line x1="235" y1="132.5" x2="260" y2="132.5" stroke="#4682B4" stroke-width="1"/>
+  
+  <!-- Door -->
+  <rect x="185" y="160" width="30" height="40" fill="#8B4513"/>
+  <rect x="190" y="165" width="20" height="30" fill="#DEB887"/>
+  <circle cx="205" cy="180" r="2" fill="#FFD700"/>
+  
+  <!-- Porch -->
+  <rect x="170" y="195" width="60" height="5" fill="#D2B48C"/>
+  <rect x="175" y="190" width="4" height="15" fill="#8B4513"/>
+  <rect x="185" y="190" width="4" height="15" fill="#8B4513"/>
+  <rect x="195" y="190" width="4" height="15" fill="#8B4513"/>
+  <rect x="205" y="190" width="4" height="15" fill="#8B4513"/>
+  <rect x="215" y="190" width="4" height="15" fill="#8B4513"/>
+  <rect x="225" y="190" width="4" height="15" fill="#8B4513"/>
+  
+  <!-- Garden -->
+  <ellipse cx="80" cy="180" rx="20" ry="10" fill="#90EE90"/>
+  <ellipse cx="320" cy="185" rx="25" ry="12" fill="#90EE90"/>
+  
+  <!-- Flowers -->
+  <circle cx="75" cy="175" r="3" fill="#FF69B4"/>
+  <circle cx="85" cy="178" r="3" fill="#FF1493"/>
+  <circle cx="315" cy="180" r="3" fill="#FF69B4"/>
+  <circle cx="325" cy="183" r="3" fill="#FF1493"/>
+  <circle cx="330" cy="178" r="3" fill="#FFB6C1"/>
+  
+  <!-- Fence -->
+  <rect x="50" y="190" width="2" height="15" fill="#8B4513"/>
+  <rect x="60" y="190" width="2" height="15" fill="#8B4513"/>
+  <rect x="70" y="190" width="2" height="15" fill="#8B4513"/>
+  <rect x="80" y="190" width="2" height="15" fill="#8B4513"/>
+  <rect x="90" y="190" width="2" height="15" fill="#8B4513"/>
+  <line x1="50" y1="195" x2="90" y2="195" stroke="#8B4513" stroke-width="2"/>
+  <line x1="50" y1="200" x2="90" y2="200" stroke="#8B4513" stroke-width="2"/>
+  
+  <rect x="310" y="190" width="2" height="15" fill="#8B4513"/>
+  <rect x="320" y="190" width="2" height="15" fill="#8B4513"/>
+  <rect x="330" y="190" width="2" height="15" fill="#8B4513"/>
+  <rect x="340" y="190" width="2" height="15" fill="#8B4513"/>
+  <rect x="350" y="190" width="2" height="15" fill="#8B4513"/>
+  <line x1="310" y1="195" x2="350" y2="195" stroke="#8B4513" stroke-width="2"/>
+  <line x1="310" y1="200" x2="350" y2="200" stroke="#8B4513" stroke-width="2"/>
+  
+  <!-- Seagulls -->
+  <path d="M100,60 Q105,55 110,60" stroke="#666" stroke-width="2" fill="none"/>
+  <path d="M250,50 Q255,45 260,50" stroke="#666" stroke-width="2" fill="none"/>
+  <path d="M320,70 Q325,65 330,70" stroke="#666" stroke-width="2" fill="none"/>
+  
+  <!-- Sun -->
+  <circle cx="350" cy="40" r="18" fill="#FFD700"/>
+  <line x1="332" y1="22" x2="336" y2="26" stroke="#FFD700" stroke-width="2"/>
+  <line x1="364" y1="26" x2="368" y2="22" stroke="#FFD700" stroke-width="2"/>
+  <line x1="332" y1="58" x2="336" y2="54" stroke="#FFD700" stroke-width="2"/>
+  <line x1="364" y1="54" x2="368" y2="58" stroke="#FFD700" stroke-width="2"/>
+  <line x1="320" y1="40" x2="325" y2="40" stroke="#FFD700" stroke-width="2"/>
+  <line x1="375" y1="40" x2="380" y2="40" stroke="#FFD700" stroke-width="2"/>
+  
+  <!-- Clouds -->
+  <circle cx="80" cy="50" r="12" fill="white" opacity="0.8"/>
+  <circle cx="92" cy="45" r="10" fill="white" opacity="0.8"/>
+  <circle cx="180" cy="35" r="15" fill="white" opacity="0.8"/>
+  <circle cx="195" cy="30" r="12" fill="white" opacity="0.8"/>
+  
+  <!-- Waves -->
+  <path d="M0,200 Q50,195 100,200 Q150,205 200,200 Q250,195 300,200 Q350,205 400,200" stroke="white" stroke-width="2" fill="none" opacity="0.7"/>
+  <path d="M0,210 Q50,205 100,210 Q150,215 200,210 Q250,205 300,210 Q350,215 400,210" stroke="white" stroke-width="2" fill="none" opacity="0.5"/>
+  
+  <!-- Pathway -->
+  <rect x="190" y="200" width="20" height="30" fill="#D2B48C"/>
+  <rect x="192" y="230" width="16" height="20" fill="#DEB887"/>
+  <rect x="194" y="250" width="12" height="20" fill="#F4A460"/>
+</svg>

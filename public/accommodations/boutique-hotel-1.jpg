@@ -1,0 +1,108 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="eveningSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFE66D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4ECDC4;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="hotelBuilding" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F8F9FA;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E9ECEF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="oceanWater" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#17A2B8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#138496;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Evening Sky -->
+  <rect width="400" height="200" fill="url(#eveningSky)"/>
+  
+  <!-- Ocean -->
+  <rect y="200" width="400" height="100" fill="url(#oceanWater)"/>
+  
+  <!-- Main Hotel Building -->
+  <rect x="100" y="80" width="200" height="160" fill="url(#hotelBuilding)" stroke="#6C757D" stroke-width="2"/>
+  
+  <!-- Hotel Entrance Canopy -->
+  <polygon points="120,220 180,200 240,220 240,240 120,240" fill="#28A745" opacity="0.8"/>
+  
+  <!-- Glass Facade -->
+  <rect x="110" y="90" width="180" height="120" fill="#E3F2FD" opacity="0.7" stroke="#2196F3" stroke-width="1"/>
+  
+  <!-- Window Grid -->
+  <line x1="140" y1="90" x2="140" y2="210" stroke="#2196F3" stroke-width="1"/>
+  <line x1="170" y1="90" x2="170" y2="210" stroke="#2196F3" stroke-width="1"/>
+  <line x1="200" y1="90" x2="200" y2="210" stroke="#2196F3" stroke-width="1"/>
+  <line x1="230" y1="90" x2="230" y2="210" stroke="#2196F3" stroke-width="1"/>
+  <line x1="260" y1="90" x2="260" y2="210" stroke="#2196F3" stroke-width="1"/>
+  
+  <line x1="110" y1="120" x2="290" y2="120" stroke="#2196F3" stroke-width="1"/>
+  <line x1="110" y1="150" x2="290" y2="150" stroke="#2196F3" stroke-width="1"/>
+  <line x1="110" y1="180" x2="290" y2="180" stroke="#2196F3" stroke-width="1"/>
+  
+  <!-- Balconies -->
+  <rect x="115" y="125" width="20" height="8" fill="#6C757D"/>
+  <rect x="145" y="125" width="20" height="8" fill="#6C757D"/>
+  <rect x="205" y="125" width="20" height="8" fill="#6C757D"/>
+  <rect x="235" y="125" width="20" height="8" fill="#6C757D"/>
+  <rect x="265" y="125" width="20" height="8" fill="#6C757D"/>
+  
+  <rect x="115" y="155" width="20" height="8" fill="#6C757D"/>
+  <rect x="175" y="155" width="20" height="8" fill="#6C757D"/>
+  <rect x="235" y="155" width="20" height="8" fill="#6C757D"/>
+  <rect x="265" y="155" width="20" height="8" fill="#6C757D"/>
+  
+  <!-- Hotel Sign -->
+  <rect x="130" y="50" width="140" height="25" fill="#343A40"/>
+  <text x="200" y="68" text-anchor="middle" fill="white" font-family="Arial" font-size="14" font-weight="bold">OCEAN VIEW BOUTIQUE</text>
+  
+  <!-- Entrance -->
+  <rect x="170" y="220" width="60" height="20" fill="#6C757D"/>
+  <rect x="175" y="215" width="50" height="25" fill="#F8F9FA"/>
+  <circle cx="190" cy="227" r="2" fill="#FFD700"/>
+  <circle cx="210" cy="227" r="2" fill="#FFD700"/>
+  
+  <!-- Landscaping -->
+  <ellipse cx="80" cy="240" rx="15" ry="8" fill="#28A745"/>
+  <ellipse cx="320" cy="240" rx="15" ry="8" fill="#28A745"/>
+  <ellipse cx="60" cy="235" rx="12" ry="6" fill="#20C997"/>
+  <ellipse cx="340" cy="235" rx="12" ry="6" fill="#20C997"/>
+  
+  <!-- Palm Trees -->
+  <rect x="48" y="200" width="4" height="40" fill="#8B4513"/>
+  <ellipse cx="50" cy="195" rx="8" ry="12" fill="#28A745"/>
+  <ellipse cx="45" cy="190" rx="6" ry="8" fill="#20C997"/>
+  <ellipse cx="55" cy="190" rx="6" ry="8" fill="#20C997"/>
+  
+  <rect x="348" y="205" width="4" height="35" fill="#8B4513"/>
+  <ellipse cx="350" cy="200" rx="8" ry="12" fill="#28A745"/>
+  <ellipse cx="345" cy="195" rx="6" ry="8" fill="#20C997"/>
+  <ellipse cx="355" cy="195" rx="6" ry="8" fill="#20C997"/>
+  
+  <!-- Swimming Pool -->
+  <ellipse cx="200" cy="270" rx="40" ry="15" fill="#007BFF" opacity="0.8"/>
+  <ellipse cx="200" cy="268" rx="35" ry="12" fill="#0056B3" opacity="0.6"/>
+  
+  <!-- Pool Deck -->
+  <rect x="140" y="250" width="120" height="8" fill="#F8F9FA"/>
+  
+  <!-- Lounge Chairs -->
+  <rect x="160" y="255" width="15" height="4" fill="#FFC107"/>
+  <rect x="180" y="255" width="15" height="4" fill="#FFC107"/>
+  <rect x="205" y="255" width="15" height="4" fill="#FFC107"/>
+  <rect x="225" y="255" width="15" height="4" fill="#FFC107"/>
+  
+  <!-- Lighting -->
+  <circle cx="120" cy="240" r="3" fill="#FFD700" opacity="0.9"/>
+  <circle cx="280" cy="240" r="3" fill="#FFD700" opacity="0.9"/>
+  <circle cx="150" cy="220" r="2" fill="#FFD700" opacity="0.8"/>
+  <circle cx="250" cy="220" r="2" fill="#FFD700" opacity="0.8"/>
+  
+  <!-- Stars -->
+  <circle cx="50" cy="30" r="1" fill="white"/>
+  <circle cx="150" cy="20" r="1.5" fill="white"/>
+  <circle cx="300" cy="40" r="1" fill="white"/>
+  <circle cx="350" cy="25" r="1.5" fill="white"/>
+  <circle cx="80" cy="50" r="1" fill="white"/>
+</svg>

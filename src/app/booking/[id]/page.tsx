@@ -24,13 +24,12 @@ const accommodations = [
   {
     id: 2,
     name: "蓝眼泪度假酒店",
-    description: "现代化海滨度假酒店，观赏蓝眼泪的最佳位置",
-    image:
-      "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'><defs><linearGradient id='modern' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' style='stop-color:%234169e1;stop-opacity:1' /><stop offset='100%' style='stop-color:%2300bfff;stop-opacity:1' /></linearGradient></defs><rect width='400' height='300' fill='url(%23modern)'/><rect x='50' y='100' width='300' height='150' fill='%23f0f8ff' stroke='%234169e1' stroke-width='3'/><rect x='80' y='130' width='40' height='30' fill='%234169e1'/><rect x='140' y='130' width='40' height='30' fill='%234169e1'/><rect x='200' y='130' width='40' height='30' fill='%234169e1'/><rect x='260' y='130' width='40' height='30' fill='%234169e1'/></svg>",
+    description: "豪华海滨度假酒店，观赏蓝眼泪奇观的最佳位置，享受顶级度假体验",
+    image: "/hotels/Gemini_Generated_Image_3.png",
     type: "酒店",
     rating: 4.9,
     price: "¥588",
-    location: "龙凤头海滨",
+    location: "坛南湾",
   },
   {
     id: 3,

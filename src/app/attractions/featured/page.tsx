@@ -13,9 +13,9 @@ import { ChevronLeft, ChevronRight, Star, MapPin, Clock, Wind, Navigation as Nav
 const BaiduMap = dynamic(() => import("@/components/ui/baidu-map"), { ssr: false })
 
 const IMAGES = [
-  { src: "/hero-slide-1.png", caption: "长曝光摄影下的蓝眼泪轨迹 · 50mm · f/1.8 · 15s · ISO1600" },
-  { src: "/hero-slide-2.png", caption: "海浪拍岸瞬间发光 · 24mm · f/2.8 · 1/4s · ISO3200" },
-  { src: "/hero-windmill.png", caption: "风车与荧蓝海线同框 · 35mm · f/2 · 8s · ISO2000" },
+  { src: "/blue-tears/Gemini_Generated_Image_f011rpf011rpf011.png", caption: "长曝光摄影下的蓝眼泪轨迹 · 50mm · f/1.8 · 15s · ISO1600" },
+  { src: "/blue-tears/Gemini_Generated_Image_kaes1xkaes1xkaes.png", caption: "海浪拍岸瞬间发光 · 24mm · f/2.8 · 1/4s · ISO3200" },
+  { src: "/blue-tears/Gemini_Generated_Image_m6r716m6r716m6r7.png", caption: "风车与荧蓝海线同框 · 35mm · f/2 · 8s · ISO2000" },
 ]
 
 const CENTER = { lng: 119.7903, lat: 25.5043 }
@@ -98,254 +98,309 @@ export default function FeaturedBlueTearsPage() {
             </div>
             <Button asChild variant="outline" size="sm" className="rounded-full"><Link href="/attractions"><ChevronLeft className="w-4 h-4 mr-1"/>返回</Link></Button>
           </div>
-          <div className="container mx-auto px-4 overflow-x-auto hide-scrollbar">
-            <div className="flex gap-4 py-2 text-sm">
-              <a href="#gallery" className="px-3 py-1 rounded-full bg-muted hover:bg-accent">视觉</a>
-              <a href="#details" className="px-3 py-1 rounded-full bg-muted hover:bg-accent">详情</a>
-              <a href="#info" className="px-3 py-1 rounded-full bg-muted hover:bg-accent">实用</a>
-              <a href="#map" className="px-3 py-1 rounded-full bg-muted hover:bg-accent">地图交通</a>
-              <a href="#reviews" className="px-3 py-1 rounded-full bg-muted hover:bg-accent">评价</a>
-              <a href="#reco" className="px-3 py-1 rounded-full bg-muted hover:bg-accent">推荐</a>
-            </div>
-          </div>
         </div>
 
-        {/* 1 主标题区 */}
-        <section className="py-14 bg-gradient-to-r from-blue-600 to-blue-800 text-white" id="hero">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-3">蓝眼泪奇观</h1>
-            <p className="text-blue-100 max-w-2xl mx-auto">海浪拍岸瞬间泛起荧蓝光辉，如银河坠入海面；在黑夜中，微光汇聚成一条流动的海线。</p>
+        {/* 全屏轮播图 */}
+        <section className="relative h-screen overflow-hidden">
+          <div className="relative w-full h-full">
+            {IMAGES.map((img, i) => (
+              <div key={i} className={`absolute inset-0 transition-transform duration-700 ease-in-out ${i === index ? "translate-x-0" : i < index ? "-translate-x-full" : "translate-x-full"}`}>
+                <Image src={img.src} alt={img.caption} fill className="object-cover" priority={i === 0} />
+                <div className="absolute inset-0 bg-black/20" />
+              </div>
+            ))}
+          </div>
+          
+          {/* 轮播控制 */}
+          <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-colors z-10">
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button onClick={next} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-colors z-10">
+            <ChevronRight className="w-6 h-6" />
+          </button>
+          
+          {/* 指示器 */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+            {IMAGES.map((_, i) => (
+              <button key={i} onClick={() => setIndex(i)} className={`w-3 h-3 rounded-full transition-colors ${i === index ? "bg-white" : "bg-white/50"}`} />
+            ))}
+          </div>
+          
+          {/* 图片说明 */}
+          <div className="absolute bottom-20 left-4 right-4 text-white z-10">
+            <p className="text-sm bg-black/50 backdrop-blur px-4 py-2 rounded-lg">{IMAGES[index].caption}</p>
           </div>
         </section>
 
-        {/* 2 视觉展示区 */}
-        <section id="gallery" className="py-10">
-          <div className="container mx-auto px-4">
-            <div className="relative overflow-hidden rounded-2xl bg-black/5">
-              <div
-                className="flex transition-transform duration-500"
-                style={{ transform: `translateX(-${index * 100}%)`, touchAction: "pan-y" }}
-                onTouchStart={(e) => { touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY } }}
-                onTouchMove={(e) => {
-                  if (!touch.current) return
-                  const dx = e.touches[0].clientX - touch.current.x
-                  if (Math.abs(dx) > 24) { dx > 0 ? prev() : next(); touch.current = null }
-                }}
-                onMouseDown={(e) => { touch.current = { x: e.clientX, y: e.clientY } }}
-                onMouseUp={(e) => { if (!touch.current) return; const dx = e.clientX - touch.current.x; if (Math.abs(dx) > 40) { dx > 0 ? prev() : next() } touch.current = null }}
-              >
-                {IMAGES.map((img, i) => (
-                  <div key={i} className="relative shrink-0 w-full aspect-[16/9]">
-                    <Image src={img.src} alt={img.caption} fill priority={i===0} className="object-cover" sizes="(max-width:768px) 100vw, 980px" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3 text-xs md:text-sm bg-gradient-to-t from-black/60 to-transparent text-white">{img.caption}</div>
+        {/* 主要内容 */}
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* 左侧主要内容 */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* 标题和基本信息 */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <h1 className="text-3xl font-bold">蓝眼泪奇观</h1>
+                  <Badge variant="secondary">自然奇观</Badge>
+                  <Badge variant="outline">夜间观赏</Badge>
+                </div>
+                <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <span className="font-medium">4.8</span>
+                    <span>(1,234条评价)</span>
                   </div>
-                ))}
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4" />
+                    <span>坛南湾海滩</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    <span>21:00-23:00最佳</span>
+                  </div>
+                </div>
+                <p className="text-muted-foreground leading-relaxed">
+                  海浪拍岸瞬间泛起荧蓝光辉，如银河坠入海面；在黑夜中，微光汇聚成一条流动的海线。"蓝眼泪"是甲藻类在扰动下发出的冷光发生现象，海水受拍击时产生短暂荧蓝闪光，形成独特的夜间观光体验。
+                </p>
               </div>
-              <button aria-label="prev" onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 shadow"><ChevronLeft className="w-5 h-5"/></button>
-              <button aria-label="next" onClick={next} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 shadow"><ChevronRight className="w-5 h-5"/></button>
-            </div>
-          </div>
-        </section>
 
-        {/* 3 内容详情模块 */}
-        <section id="details" className="py-12 bg-gradient-to-b from-white to-blue-50/50">
-          <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-start">
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">关于蓝眼泪</h2>
-              <p className="text-muted-foreground mb-3">“蓝眼泪”是甲藻类在扰动下发出的冷光发生现象，海水受拍击时产生短暂荧蓝闪光，形成独特的夜间观光体验。</p>
-              <p className="text-muted-foreground">观赏以无月/少云、暗场、微风、小浪为佳；请勿涉水踩踏或用桶搅动，保护海洋生态。</p>
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                {[
-                  "4-8月活跃高峰",
-                  "21:00-23:00更显著",
-                  "需暗场避强光",
-                  "涨潮后浪花更亮",
-                  "建议三脚架长曝",
-                ].map((t,i)=> (
-                  <Badge key={i} variant="secondary" className="rounded-full">{t}</Badge>
-                ))}
-              </div>
-            </div>
-            <Card className="rounded-2xl bg-white/70 backdrop-blur">
-              <CardHeader>
-                <CardTitle className="text-lg">摄影建议</CardTitle>
-                <CardDescription>关闭手电直射海面，采用长曝光与低色温白平衡</CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2">
-                <p>相机：光圈优先/手动模式；三脚架+快门线。</p>
-                <p>参数：f/1.4-2.8 · 6-20s · ISO1600-3200 · RAW。</p>
-                <p>对焦：手动对焦无穷远，或借远处灯标预对焦。</p>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+              {/* 详细介绍 */}
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-semibold mb-3">观赏指南</h2>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">最佳时段</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="flex justify-between">
+                          <span>观赏季节</span>
+                          <span className="font-medium">4-8月</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>最佳时间</span>
+                          <span className="font-medium">21:00-23:00</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>潮汐条件</span>
+                          <span className="font-medium">涨潮前后</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">摄影建议</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        <p>• 相机：光圈优先/手动模式</p>
+                        <p>• 参数：f/1.4-2.8 · 6-20s · ISO1600-3200</p>
+                        <p>• 对焦：手动对焦无穷远</p>
+                        <p>• 建议：三脚架+快门线+RAW格式</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
 
-        {/* 4 实用信息区 */}
-        <section id="info" className="py-12">
-          <div className="container mx-auto px-4 grid md:grid-cols-3 gap-6">
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center"><Clock className="w-4 h-4 mr-2"/>最佳时段</CardTitle>
-                <CardDescription>4-8月 · 21:00-23:00 · 涨潮前后</CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">新月期观赏更佳；节假日人多，工作日体验更舒适。</CardContent>
-            </Card>
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center"><Wind className="w-4 h-4 mr-2"/>天气条件</CardTitle>
-                <CardDescription>
-                  {weatherLoading && "加载中…"}
-                  {!weatherLoading && weatherError && "加载失败"}
-                  {!weatherLoading && !weatherError && (
-                    <span>
-                      {weather?.now?.text ?? "暂无"} · 风力{weather?.now?.wind_class ?? "未知"} · {weather?.now?.wind_dir ?? ""}
-                    </span>
-                  )}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2">
-                {!weatherLoading && !weatherError && weather?.now ? (
-                  <>
-                    <p>当前温度：{weather?.now?.temp ?? "-"}℃，体感：{weather?.now?.feels_like ?? "-"}℃</p>
-                    <p>相对湿度：{weather?.now?.rh ?? "-"}% · 云量：{weather?.now?.clouds ?? "-"}% · 能见度：{weather?.now?.vis ?? "-"}m</p>
-                    <p>1小时降水：{weather?.now?.prec_1h ?? "-"}mm · 空气质量指数：{weather?.now?.aqi ?? "-"}</p>
-                    {weather?.uptime && <p>更新时间：{weather?.uptime}</p>}
-                  </>
-                ) : (
-                  <p>风浪过大或强降雨会抑制亮度；避开全月夜。</p>
-                )}
-              </CardContent>
-            </Card>
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center"><Star className="w-4 h-4 mr-2"/>人流预测</CardTitle>
-                <CardDescription>当前：
-                  <span className={crowd.color}>{crowd.level}</span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">{crowd.tip} 本提示基于时段估计，仅供参考。</CardContent>
-            </Card>
-          </div>
-
-          {/* 未来5天天气预报 */}
-          <div className="container mx-auto px-4 mt-6">
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-lg">未来5天天气预报</CardTitle>
-                <CardDescription>数据来源：百度地图天气服务</CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                {weatherLoading && <p>正在加载预报…</p>}
-                {!weatherLoading && weatherError && <p>预报加载失败：{weatherError}</p>}
-                {!weatherLoading && !weatherError && Array.isArray(weather?.forecasts) ? (
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                    {weather?.forecasts?.slice(0,5).map((d: any, i: number) => (
-                      <div key={i} className="rounded-xl border p-3 bg-background/60">
-                        <div className="font-medium">{d?.date}（{d?.week}）</div>
-                        <div className="mt-1">白天：{d?.text_day ?? "-"} · {d?.high ?? "-"}℃</div>
-                        <div className="">夜间：{d?.text_night ?? "-"} · {d?.low ?? "-"}℃</div>
-                        <div className="text-xs text-muted-foreground mt-1">风力：{d?.wc_day ?? "-"}/{d?.wc_night ?? "-"} · 风向：{d?.wd_day ?? "-"}/{d?.wd_night ?? "-"}</div>
-                      </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-3">注意事项</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {[
+                      "需暗场避强光",
+                      "涨潮后浪花更亮", 
+                      "建议三脚架长曝",
+                      "无月/少云更佳",
+                      "保护海洋生态",
+                      "勿涉水踩踏"
+                    ].map((tip, i) => (
+                      <Badge key={i} variant="secondary" className="rounded-full justify-center py-2">
+                        {tip}
+                      </Badge>
                     ))}
                   </div>
-                ) : (
-                  <p>暂无预报数据</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+                </div>
 
-        {/* 5 地理交通模块 */}
-        <section id="map" className="py-12 bg-gradient-to-b from-white to-blue-50/50">
-          <div className="container mx-auto px-4 grid lg:grid-cols-3 gap-6 items-start">
-            <div className="lg:col-span-2">
-              <div className="h-80 w-full rounded-2xl overflow-hidden border">
-                <BaiduMap center={CENTER} zoom={12} markers={MARKERS} />
+                {/* 地图 */}
+                <div>
+                  <h2 className="text-xl font-semibold mb-3">位置地图</h2>
+                  <div className="h-80 w-full rounded-2xl overflow-hidden border">
+                    <BaiduMap center={CENTER} zoom={12} markers={MARKERS} />
+                  </div>
+                </div>
+
+                {/* 游客评价 */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-xl font-semibold">游客评价</h2>
+                    <div className="text-sm text-muted-foreground">共{reviews.length}条 · 平均{(reviews.reduce((a,b)=>a+b.rating,0)/reviews.length).toFixed(1)}分</div>
+                  </div>
+                  <div className="space-y-4">
+                    {view.map(r=> (
+                      <Card key={r.id}>
+                        <CardHeader className="pb-2">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-base">{r.name}</CardTitle>
+                            <div className="flex items-center text-amber-500">{Array.from({length:5}).map((_,i)=> <Star key={i} className={`w-4 h-4 ${i<r.rating?"fill-amber-400":""}`}/>)}</div>
+                          </div>
+                          <CardDescription>{r.date}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="text-sm text-muted-foreground">{r.content}</CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                  <div className="flex justify-center gap-2 mt-4">
+                    <Button size="sm" variant="outline" className="rounded-full" onClick={()=>setPage(p=>Math.max(1,p-1))}>上一页</Button>
+                    <div className="text-sm self-center">{page}/{pages}</div>
+                    <Button size="sm" variant="outline" className="rounded-full" onClick={()=>setPage(p=>Math.min(pages,p+1))}>下一页</Button>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="space-y-4">
-              <Card className="rounded-2xl">
+
+            {/* 右侧信息栏 */}
+            <div className="space-y-6">
+              {/* 实时信息 */}
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center"><Route className="w-4 h-4 mr-2"/>交通指南</CardTitle>
-                  <CardDescription>自驾 / 公交 / 步行</CardDescription>
+                  <CardTitle className="text-lg flex items-center">
+                    <Wind className="w-4 h-4 mr-2" />
+                    实时信息
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-muted-foreground space-y-2">
-                  <p>自驾：导航搜索“坛南湾停车场”，步行约8-12分钟至海滩暗场。</p>
-                  <p>公交：乘至“坛南湾”站，下车沿指示步行前往观赏点。</p>
-                  <p>步行：沿海步道注意潮位与防滑，勿翻越警戒线。</p>
-                  <Button onClick={()=>openBaiduDirection("坛南湾海滩")} className="rounded-full mt-2" variant="outline"><NavIcon className="w-4 h-4 mr-2"/>打开百度导航</Button>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-muted-foreground">当前人流</span>
+                      <Badge variant={crowd.level === "低" ? "secondary" : crowd.level === "中" ? "default" : "destructive"}>
+                        {crowd.level}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{crowd.tip}</p>
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-muted-foreground">天气状况</span>
+                      <span className="text-sm">
+                        {weatherLoading && "加载中…"}
+                        {!weatherLoading && weatherError && "加载失败"}
+                        {!weatherLoading && !weatherError && (
+                          <span>{weather?.now?.text ?? "暂无"}</span>
+                        )}
+                      </span>
+                    </div>
+                    {!weatherLoading && !weatherError && weather?.now && (
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <p>温度：{weather.now.temp ?? "-"}℃ · 体感：{weather.now.feels_like ?? "-"}℃</p>
+                        <p>风力：{weather.now.wind_class ?? "未知"} · {weather.now.wind_dir ?? ""}</p>
+                        <p>湿度：{weather.now.rh ?? "-"}% · 能见度：{weather.now.vis ?? "-"}m</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 交通指南 */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center">
+                    <Route className="w-4 h-4 mr-2" />
+                    交通指南
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">坛南湾海滩</span>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => openBaiduDirection("坛南湾海滩")}
+                      >
+                        导航
+                      </Button>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">龙凤头海滨</span>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => openBaiduDirection("龙凤头海滨")}
+                      >
+                        导航
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 天气预报 */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">未来5天天气</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm">
+                  {weatherLoading && <p className="text-muted-foreground">正在加载预报…</p>}
+                  {!weatherLoading && weatherError && <p className="text-muted-foreground">预报加载失败</p>}
+                  {!weatherLoading && !weatherError && Array.isArray(weather?.forecasts) ? (
+                    <div className="space-y-2">
+                      {weather?.forecasts?.slice(0,3).map((d: any, i: number) => (
+                        <div key={i} className="flex justify-between items-center py-1 border-b last:border-0">
+                          <div>
+                            <div className="font-medium text-xs">{d?.date}（{d?.week}）</div>
+                            <div className="text-xs text-muted-foreground">{d?.text_day ?? "-"}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-xs">{d?.high ?? "-"}°/{d?.low ?? "-"}°</div>
+                            <div className="text-xs text-muted-foreground">{d?.wc_day ?? "-"}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground">暂无预报数据</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* 提交评价 */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">提交评价</CardTitle>
+                  <CardDescription>分享你的观赏体验</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <input value={form.name} onChange={e=>setForm({...form, name:e.target.value})} placeholder="称呼" className="w-full px-3 py-2 rounded-xl border bg-background" />
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">评分：</span>
+                    {Array.from({length:5}).map((_,i)=> (
+                      <button key={i} onClick={()=>setForm({...form, rating:i+1})}><Star className={`w-5 h-5 ${i<form.rating?"fill-amber-400 text-amber-500":"text-muted-foreground"}`} /></button>
+                    ))}
+                  </div>
+                  <textarea value={form.content} onChange={e=>setForm({...form, content:e.target.value})} placeholder="写下你的建议或小贴士…" className="w-full px-3 py-2 rounded-xl border bg-background h-24" />
+                  <Button className="rounded-full w-full" onClick={()=>{
+                    if(!form.name || !form.content) return alert("请填写完整信息")
+                    const newR: Review = { id: Date.now(), name: form.name, rating: form.rating, content: form.content, date: new Date().toISOString().slice(0,10) }
+                    setReviews([newR, ...reviews]); setForm({ name:"", rating:5, content:""}); setPage(1)
+                  }}>提交</Button>
                 </CardContent>
               </Card>
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* 6 互动评价区 */}
-        <section id="reviews" className="py-12">
-          <div className="container mx-auto px-4 grid lg:grid-cols-3 gap-8 items-start">
-            <div className="lg:col-span-2">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xl font-semibold">游客评价</h3>
-                <div className="text-sm text-muted-foreground">共{reviews.length}条 · 平均{(reviews.reduce((a,b)=>a+b.rating,0)/reviews.length).toFixed(1)}分</div>
-              </div>
-              <div className="space-y-4">
-                {view.map(r=> (
-                  <Card key={r.id} className="rounded-2xl">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-base">{r.name}</CardTitle>
-                        <div className="flex items-center text-amber-500">{Array.from({length:5}).map((_,i)=> <Star key={i} className={`w-4 h-4 ${i<r.rating?"fill-amber-400":""}`}/>)}</div>
-                      </div>
-                      <CardDescription>{r.date}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="text-sm text-muted-foreground">{r.content}</CardContent>
-                  </Card>
-                ))}
-              </div>
-              <div className="flex justify-center gap-2 mt-4">
-                <Button size="sm" variant="outline" className="rounded-full" onClick={()=>setPage(p=>Math.max(1,p-1))}>上一页</Button>
-                <div className="text-sm self-center">{page}/{pages}</div>
-                <Button size="sm" variant="outline" className="rounded-full" onClick={()=>setPage(p=>Math.min(pages,p+1))}>下一页</Button>
-              </div>
-            </div>
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-lg">提交评价</CardTitle>
-                <CardDescription>分享你的观赏体验</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <input value={form.name} onChange={e=>setForm({...form, name:e.target.value})} placeholder="称呼" className="w-full px-3 py-2 rounded-xl border bg-background" />
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">评分：</span>
-                  {Array.from({length:5}).map((_,i)=> (
-                    <button key={i} onClick={()=>setForm({...form, rating:i+1})}><Star className={`w-5 h-5 ${i<form.rating?"fill-amber-400 text-amber-500":"text-muted-foreground"}`} /></button>
-                  ))}
-                </div>
-                <textarea value={form.content} onChange={e=>setForm({...form, content:e.target.value})} placeholder="写下你的建议或小贴士…" className="w-full px-3 py-2 rounded-xl border bg-background h-24" />
-                <Button className="rounded-full w-full" onClick={()=>{
-                  if(!form.name || !form.content) return alert("请填写完整信息")
-                  const newR: Review = { id: Date.now(), name: form.name, rating: form.rating, content: form.content, date: new Date().toISOString().slice(0,10) }
-                  setReviews([newR, ...reviews]); setForm({ name:"", rating:5, content:""}); setPage(1)
-                }}>提交</Button>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        {/* 7 智能推荐栏 */}
-        <section id="reco" className="py-12 bg-gradient-to-b from-white to-blue-50/50">
+        {/* 相关景点推荐 */}
+        <section className="py-12 bg-gradient-to-b from-white to-blue-50/50">
           <div className="container mx-auto px-4">
             <h3 className="text-xl font-semibold mb-6">相关景点</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { href: "/attractions/stone-houses", title: "石头厝古村", desc: "海岛人文风貌", img: "/window.svg" },
-                { href: "/attractions/coastal-road", title: "环岛路", desc: "最美海岸自驾", img: "/globe.svg" },
+                { href: "/attractions/stone-houses", title: "石头厝古村", desc: "海岛人文风貌", img: "/stone-houses/Gemini_Generated_Image_ny81yuny81yuny81.png" },
+                { href: "/attractions/coastal-road", title: "环岛路", desc: "最美海岸自驾", img: "/coastal-road/Gemini_Generated_Image_csemzicsemzicsem.png" },
                 { href: "/attractions", title: "坛南湾海滩", desc: "蓝眼泪热门点位", img: "/file.svg" },
               ].map((a,i)=> (
                 <Link key={i} href={a.href} className="group rounded-2xl overflow-hidden border bg-white/70 backdrop-blur hover:shadow-lg transition-all">
                   <div className="relative h-40 w-full bg-gradient-to-br from-blue-100 to-blue-200">
-                    <Image src={a.img} alt={a.title} fill className="object-contain p-6" />
+                    <Image src={a.img} alt={a.title} fill className="object-cover" />
                   </div>
                   <div className="p-4">
                     <div className="font-medium group-hover:text-primary">{a.title}</div>
@@ -357,11 +412,6 @@ export default function FeaturedBlueTearsPage() {
           </div>
         </section>
       </div>
-
-      {/* 固定返回按钮 */}
-      <Link href="/attractions" className="fixed left-4 bottom-6 z-40">
-        <span className="inline-flex items-center px-3 py-2 rounded-full bg-white/90 border shadow"><ChevronLeft className="w-4 h-4 mr-1"/>返回</span>
-      </Link>
     </main>
   )
 }

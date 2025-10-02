@@ -1,0 +1,57 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E0F6FF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="seaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4682B4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E90FF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky -->
+  <rect width="400" height="180" fill="url(#skyGradient)"/>
+  
+  <!-- Sea -->
+  <rect y="180" width="400" height="120" fill="url(#seaGradient)"/>
+  
+  <!-- Stone House Main Structure -->
+  <rect x="120" y="120" width="160" height="120" fill="#8B7355" stroke="#5D4E37" stroke-width="2"/>
+  
+  <!-- Roof -->
+  <polygon points="120,120 200,80 280,120" fill="#CD853F"/>
+  
+  <!-- Door -->
+  <rect x="180" y="180" width="40" height="60" fill="#654321"/>
+  
+  <!-- Windows -->
+  <rect x="140" y="140" width="30" height="30" fill="#87CEEB" stroke="#5D4E37" stroke-width="1"/>
+  <rect x="230" y="140" width="30" height="30" fill="#87CEEB" stroke="#5D4E37" stroke-width="1"/>
+  
+  <!-- Stone Texture Lines -->
+  <line x1="120" y1="140" x2="280" y2="140" stroke="#5D4E37" stroke-width="1"/>
+  <line x1="120" y1="160" x2="280" y2="160" stroke="#5D4E37" stroke-width="1"/>
+  <line x1="120" y1="200" x2="280" y2="200" stroke="#5D4E37" stroke-width="1"/>
+  <line x1="120" y1="220" x2="280" y2="220" stroke="#5D4E37" stroke-width="1"/>
+  
+  <!-- Vertical Stone Lines -->
+  <line x1="160" y1="120" x2="160" y2="240" stroke="#5D4E37" stroke-width="1"/>
+  <line x1="240" y1="120" x2="240" y2="240" stroke="#5D4E37" stroke-width="1"/>
+  
+  <!-- Clouds -->
+  <circle cx="80" cy="60" r="20" fill="white" opacity="0.8"/>
+  <circle cx="95" cy="55" r="15" fill="white" opacity="0.8"/>
+  <circle cx="320" cy="40" r="25" fill="white" opacity="0.8"/>
+  <circle cx="340" cy="45" r="18" fill="white" opacity="0.8"/>
+  
+  <!-- Sun -->
+  <circle cx="350" cy="50" r="15" fill="#FFD700"/>
+  
+  <!-- Seagulls -->
+  <path d="M50,80 Q55,75 60,80" stroke="#666" stroke-width="2" fill="none"/>
+  <path d="M65,85 Q70,80 75,85" stroke="#666" stroke-width="2" fill="none"/>
+  
+  <!-- Beach/Shore -->
+  <ellipse cx="200" cy="280" rx="150" ry="20" fill="#F4A460" opacity="0.6"/>
+</svg>

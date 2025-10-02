@@ -12,7 +12,7 @@ const featuredAttractions = [
     id: 1,
     name: "蓝眼泪海滩",
     description: "平潭最著名的自然奇观，夜晚海浪泛起蓝色荧光，如梦如幻",
-    image: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'><defs><linearGradient id='night' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23001122;stop-opacity:1' /><stop offset='100%' style='stop-color:%23003366;stop-opacity:1' /></linearGradient></defs><rect width='400' height='300' fill='url(%23night)'/><circle cx='100' cy='250' r='2' fill='%2300ffff' opacity='0.8'><animate attributeName='opacity' values='0.8;0.3;0.8' dur='2s' repeatCount='indefinite'/></circle><circle cx='200' cy='260' r='3' fill='%2300ffff' opacity='0.6'><animate attributeName='opacity' values='0.6;0.2;0.6' dur='3s' repeatCount='indefinite'/></circle><circle cx='300' cy='240' r='2' fill='%2300ffff' opacity='0.9'><animate attributeName='opacity' values='0.9;0.4;0.9' dur='2.5s' repeatCount='indefinite'/></circle></svg>",
+    image: "/blue-tears/Gemini_Generated_Image_dlhqfedlhqfedlhq.png",
     category: "自然奇观",
     rating: 4.9,
     visitors: "1.2万",
@@ -26,7 +26,7 @@ const featuredAttractions = [
     id: 2,
     name: "石头厝古村",
     description: "保存完好的传统闽南石头建筑群，体验海岛独特的建筑文化",
-    image: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'><rect width='400' height='300' fill='%23f5f5dc'/><rect x='50' y='150' width='80' height='100' fill='%23696969' stroke='%232f2f2f' stroke-width='2'/><rect x='150' y='130' width='90' height='120' fill='%23708090' stroke='%232f2f2f' stroke-width='2'/><rect x='260' y='140' width='85' height='110' fill='%23778899' stroke='%232f2f2f' stroke-width='2'/><polygon points='50,150 90,120 130,150' fill='%23cd853f'/><polygon points='150,130 195,100 240,130' fill='%23d2691e'/><polygon points='260,140 302,110 345,140' fill='%23daa520'/></svg>",
+    image: "/stone-houses/Gemini_Generated_Image_ny81yuny81yuny81.png",
     category: "历史文化",
     rating: 4.7,
     visitors: "8.5千",
@@ -40,7 +40,7 @@ const featuredAttractions = [
     id: 3,
     name: "环岛路风光带",
     description: "68公里海岸线自驾路线，沿途风景如画，是摄影爱好者的天堂",
-    image: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'><defs><linearGradient id='sky' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' style='stop-color:%2387ceeb;stop-opacity:1' /><stop offset='100%' style='stop-color:%23e0f6ff;stop-opacity:1' /></linearGradient></defs><rect width='400' height='300' fill='url(%23sky)'/><path d='M0,200 Q100,180 200,190 T400,200 L400,300 L0,300 Z' fill='%23228b22'/><path d='M0,250 Q100,240 200,245 T400,250 L400,300 L0,300 Z' fill='%234169e1'/><path d='M50,190 Q150,185 250,190 T350,195' stroke='%23696969' stroke-width='4' fill='none'/></svg>",
+    image: "/coastal-road/Gemini_Generated_Image_csemzicsemzicsem.png",
     category: "自然风光",
     rating: 4.8,
     visitors: "2.1万",
@@ -187,7 +187,7 @@ export default function FeaturedAttractions() {
                 <CardFooter className="pt-0">
                   <div className="flex gap-2 w-full">
                     <Button className="flex-1 group-hover:bg-primary group-hover:text-primary-foreground transition-all rounded-2xl shadow-sm hover:shadow-md" asChild>
-                      <Link href={`/attractions/${attraction.id}`}>
+                      <Link href={attraction.id === 1 ? "/attractions/featured" : attraction.id === 2 ? "/attractions/stone-houses" : attraction.id === 3 ? "/attractions/coastal-road" : `/attractions/${attraction.id}`}>
                         <MapPin className="w-4 h-4 mr-2" />
                         了解更多
                       </Link>
