@@ -53,7 +53,7 @@ interface Order {
 interface OrderManagementProps {
   orders: Order[]
   onRefresh: () => void
-  onUpdateOrder: (orderId: string, updates: any) => void
+  onUpdateOrder: (payload: { orderId: string, priority?: string, isPriority?: boolean, urgencyLevel?: string, status?: string }) => Promise<void>
   onExportOrders: () => void
 }
 
@@ -271,10 +271,9 @@ export default function OrderManagement({ orders, onRefresh, onUpdateOrder, onEx
     if (!selectedOrder || !afterSalesReason.trim()) return
     
     // 这里应该调用API提交售后申请
-    onUpdateOrder(selectedOrder.id, {
-      afterSalesStatus: 'APPLIED',
-      afterSalesReason,
-      afterSalesDescription
+    onUpdateOrder({
+      orderId: selectedOrder.id,
+      status: selectedOrder.status // 保持当前状态或根据需要更新
     })
     
     setAfterSalesDialogOpen(false)
