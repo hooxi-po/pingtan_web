@@ -152,8 +152,8 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
         checkOutDate: checkout || null,
         guestCount: guests,
         specialRequests: null,
-        contactName: "线上用户",
-        contactPhone: "13800138000",
+        contactName,
+        contactPhone,
         contactEmail: null,
         accommodationId: devMode ? undefined : String(p?.id),
         status: "PENDING",
@@ -309,6 +309,32 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                         />
                       </div>
                     </div>
+                    
+                    {/* 添加住宿预订的联系人信息 */}
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">联系人姓名</label>
+                      <div className="flex items-center rounded-2xl bg-white/70 backdrop-blur border border-white/60 px-3 py-2">
+                        <input
+                          type="text"
+                          placeholder="请输入姓名"
+                          value={contactName}
+                          onChange={(e) => setContactName(e.target.value)}
+                          className="w-full bg-transparent outline-none text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">联系人手机号</label>
+                      <div className="flex items-center rounded-2xl bg-white/70 backdrop-blur border border-white/60 px-3 py-2">
+                        <input
+                          type="tel"
+                          placeholder="请输入手机号"
+                          value={contactPhone}
+                          onChange={(e) => setContactPhone(e.target.value)}
+                          className="w-full bg-transparent outline-none text-sm"
+                        />
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -460,7 +486,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                   <p className="text-xs text-muted-foreground mt-1">不含税费与服务费，实际以商家结算为准</p>
                 </div>
                 <Button
-                  disabled={isRestaurant ? (guests <= 0 || !reservationDate || !contactName || !contactPhone) : (total <= 0)}
+                  disabled={isRestaurant ? (guests <= 0 || !reservationDate || !contactName || !contactPhone) : (total <= 0 || !contactName || !contactPhone)}
                   className="w-full mt-4 rounded-2xl shadow-sm hover:shadow-md"
                   onClick={() => setShowPaymentModal(true)}
                 >

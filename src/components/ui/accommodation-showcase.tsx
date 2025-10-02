@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Star, MapPin, Users, Bed, Wifi, Car, Coffee, Heart, Eye, Calendar } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 interface AccommodationShowcaseProps {
   searchQuery?: string
@@ -319,8 +320,11 @@ export default function AccommodationShowcase({
                   <Button
                     size="sm"
                     className="flex-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm py-2"
+                    asChild
                   >
-                    立即预订
+                    <Link href={`/booking/${accommodation.id}`}>
+                      立即预订
+                    </Link>
                   </Button>
                 </div>
 
