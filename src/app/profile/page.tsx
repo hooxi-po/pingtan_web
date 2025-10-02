@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Navigation from "@/components/ui/navigation"
 import { User, Mail, Phone, Edit, Save, X, Settings, Upload } from "lucide-react"
-import TripPlanner from "@/components/ui/trip-planner"
+import { OrderManagement } from "@/components/ui/order-management"
 import { Badge } from "@/components/ui/badge"
 
 export default function ProfilePage() {
@@ -413,160 +413,12 @@ export default function ProfilePage() {
         )}
 
         {activeTab === "orders" && (
-          <div className="space-y-6">
-            {/* 操作栏：筛选、自动识别、导出 */}
-            <Card>
-              <CardHeader>
-                <CardTitle>优先订单管理</CardTitle>
-                <CardDescription>筛选、标记与实时监控优先订单处理进度</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                  <div>
-                    <label className="text-xs text-muted-foreground">订单类型</label>
-                    <select className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
-                      value={typeFilter}
-                      onChange={(e) => setTypeFilter(e.target.value)}>
-                      <option value="">全部</option>
-                      <option value="ATTRACTION">门票</option>
-                      <option value="ACCOMMODATION">民宿</option>
-                      <option value="RESTAURANT">餐饮</option>
-                      <option value="PACKAGE">套餐</option>
-                      <option value="EXPERIENCE">体验</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground">订单状态</label>
-                    <select className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}>
-                      <option value="">全部</option>
-                      <option value="PENDING">待处理</option>
-                      <option value="CONFIRMED">已确认</option>
-                      <option value="CANCELLED">已取消</option>
-                      <option value="COMPLETED">已完成</option>
-                      <option value="REFUNDED">已退款</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground">优先级</label>
-                    <select className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
-                      value={priorityFilter}
-                      onChange={(e) => setPriorityFilter(e.target.value)}>
-                      <option value="">全部</option>
-                      <option value="LOW">低</option>
-                      <option value="MEDIUM">中</option>
-                      <option value="HIGH">高</option>
-                      <option value="CRITICAL">紧急</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground">是否优先</label>
-                    <select className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
-                      value={isPriorityFilter}
-                      onChange={(e) => setIsPriorityFilter(e.target.value)}>
-                      <option value="">全部</option>
-                      <option value="true">是</option>
-                      <option value="false">否</option>
-                    </select>
-                  </div>
-                  {user?.role === "ADMIN" && (
-                    <div className="flex items-end">
-                      <label className="sr-only">查看范围</label>
-                      <button
-                        className={`w-full rounded-md border px-3 py-2 text-sm ${scopeAll ? "bg-primary text-white border-primary" : "bg-background"}`}
-                        onClick={() => setScopeAll((v) => !v)}
-                      >{scopeAll ? "查看全部（管理员）" : "仅查看我的订单"}</button>
-                    </div>
-                  )}
-                  <div className="flex items-end gap-2">
-                    <Button onClick={() => fetchOrders()} variant="outline">刷新</Button>
-                    <Button onClick={() => handleAutoIdentify(orders.map((o) => o.id))}>自动识别优先订单</Button>
-                    <Button variant="secondary" onClick={exportCSV}>导出报表</Button>
-                  </div>
-                </div>
-                {ordersLoading && <p className="text-sm">加载中...</p>}
-                {message && <p className="text-sm text-muted-foreground">{message}</p>}
-              </CardContent>
-            </Card>
-
-            {/* 统计概览 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {([
-                { key: "LOW", label: "低优先级", color: "bg-muted" },
-                { key: "MEDIUM", label: "中优先级", color: "bg-blue-50" },
-                { key: "HIGH", label: "高优先级", color: "bg-orange-50" },
-                { key: "CRITICAL", label: "紧急优先级", color: "bg-red-50" },
-              ] as const).map((item) => (
-                <Card key={item.key} className="overflow-hidden">
-                  <CardHeader className="flex items-center justify-between">
-                    <CardTitle className="text-sm">{item.label}</CardTitle>
-                    <Badge variant="outline">{priorityStats[item.key] || 0}</Badge>
-                  </CardHeader>
-                  <div className={`${item.color} h-1 w-full`} />
-                </Card>
-              ))}
-            </div>
-
-            {/* 状态概览 */}
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {([
-                { key: "PENDING", label: "待处理" },
-                { key: "CONFIRMED", label: "已确认" },
-                { key: "CANCELLED", label: "已取消" },
-                { key: "COMPLETED", label: "已完成" },
-                { key: "REFUNDED", label: "已退款" },
-              ] as const).map((s) => (
-                <Card key={s.key}>
-                  <CardHeader className="flex items-center justify-between">
-                    <CardTitle className="text-sm">{s.label}</CardTitle>
-                    <Badge variant="secondary">{statusStats[s.key] || 0}</Badge>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-
-            {/* 列表 */}
-            <div className="grid grid-cols-1 gap-4">
-              {orders.map((o) => (
-                <Card key={o.id}>
-                  <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">{o.type}</Badge>
-                      <span className="text-sm text-muted-foreground">#{o.id}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge>{o.priority || "LOW"}</Badge>
-                      {o.isPriority && <Badge variant="destructive">PRIORITY</Badge>}
-                      <span className="text-sm text-muted-foreground">{o.urgencyLevel || "NORMAL"}</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                      <div>状态：{o.status}</div>
-                      <div>支付：{o.paymentStatus}</div>
-                      <div>金额：￥{o.totalAmount}</div>
-                      <div>下单：{o.bookingDate ? new Date(o.bookingDate).toLocaleString() : "-"}</div>
-                      <div>入住：{o.checkInDate ? new Date(o.checkInDate).toLocaleDateString() : "-"}</div>
-                      <div>退房：{o.checkOutDate ? new Date(o.checkOutDate).toLocaleDateString() : "-"}</div>
-                      <div>创建：{o.createdAt ? new Date(o.createdAt).toLocaleString() : "-"}</div>
-                      <div>更新：{o.updatedAt ? new Date(o.updatedAt).toLocaleString() : "-"}</div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleUpdateOrder({ orderId: o.id, status: o.status === "PENDING" ? "CONFIRMED" : "PENDING" })}>切换待处理/已确认</Button>
-                      <Button size="sm" variant="outline" onClick={() => handleUpdateOrder({ orderId: o.id, isPriority: !o.isPriority })}>{o.isPriority ? "取消优先" : "设为优先"}</Button>
-                      <Button size="sm" onClick={() => handleUpdateOrder({ orderId: o.id, status: "COMPLETED" })}>标记完成</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-              {!orders.length && (
-                <Card>
-                  <CardContent className="py-10 text-center text-sm text-muted-foreground">暂无数据</CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
+          <OrderManagement 
+            orders={orders}
+            onRefresh={fetchOrders}
+            onUpdateOrder={handleUpdateOrder}
+            onExportOrders={exportCSV}
+          />
         )}
       </div>
     </main>
