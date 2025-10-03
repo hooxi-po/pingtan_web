@@ -17,6 +17,7 @@ const createTemplateSchema = z.object({
     'ORDER_CONFIRMED',
     'ORDER_CANCELLED',
     'ORDER_REFUNDED',
+    'BOOKING_CONFIRMED',
     'BOOKING_REMINDER',
     'SYSTEM_ANNOUNCEMENT',
     'PROMOTIONAL',

@@ -87,10 +87,12 @@ export default function AccommodationsPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">全部类型</SelectItem>
+                        <SelectItem value="度假酒店">度假酒店</SelectItem>
                         <SelectItem value="民宿">民宿</SelectItem>
-                        <SelectItem value="酒店">酒店</SelectItem>
+                        <SelectItem value="别墅">别墅</SelectItem>
                         <SelectItem value="客栈">客栈</SelectItem>
-                        <SelectItem value="度假村">度假村</SelectItem>
+                        <SelectItem value="家庭旅馆">家庭旅馆</SelectItem>
+                        <SelectItem value="精品酒店">精品酒店</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -103,10 +105,12 @@ export default function AccommodationsPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">全部区域</SelectItem>
-                        <SelectItem value="坛南湾">坛南湾</SelectItem>
+                        <SelectItem value="平潭岛">平潭岛</SelectItem>
+                        <SelectItem value="北港村">北港村</SelectItem>
                         <SelectItem value="龙凤头海滨">龙凤头海滨</SelectItem>
                         <SelectItem value="流水镇">流水镇</SelectItem>
-                        <SelectItem value="北港村">北港村</SelectItem>
+                        <SelectItem value="平潭县城">平潭县城</SelectItem>
+                        <SelectItem value="坛南湾">坛南湾</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

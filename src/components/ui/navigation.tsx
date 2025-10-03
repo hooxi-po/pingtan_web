@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MapPin, Calendar, Home, User, LogOut, Settings } from "lucide-react"
+import NotificationBell from "@/components/ui/notification-bell"
 
 export default function Navigation() {
   const { data: session } = useSession()
@@ -139,6 +140,7 @@ export default function Navigation() {
 
         {/* User Menu - Right aligned */}
         <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-4 md:right-6">
+          {session && <NotificationBell userId={session.user.id} />}
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

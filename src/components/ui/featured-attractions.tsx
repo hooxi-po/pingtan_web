@@ -193,7 +193,7 @@ export default function FeaturedAttractions() {
                       </Link>
                     </Button>
                     <Button variant="outline" className="flex-1 rounded-2xl" asChild>
-                      <Link href={`/booking/${attraction.id}`}>
+                      <Link href={`/attractions/${attraction.id}/booking`}>
                         <CreditCard className="w-4 h-4 mr-2" />
                         立即预订
                       </Link>

@@ -8,27 +8,27 @@ datasource db {
 }
 
 model User {
-  id                    String                @id @default(cuid())
-  email                 String                @unique
-  username              String?               @unique
-  password              String
-  name                  String?
-  avatar                String?
-  phone                 String?
-  role                  UserRole              @default(USER)
-  language              String                @default("zh")
-  points                Int                   @default(0)
-  isVerified            Boolean               @default(false)
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
-  comments              Comment[]
-  favorites             Favorite[]
-  itineraries           Itinerary[]
-  orders                Order[]
-  posts                 Post[]
-  reviews               Review[]
-  notifications         Notification[]
-  notificationConfigs   NotificationConfig[]
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  username            String?              @unique
+  password            String
+  name                String?
+  avatar              String?
+  phone               String?
+  role                UserRole             @default(USER)
+  language            String               @default("zh")
+  points              Int                  @default(0)
+  isVerified          Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  comments            Comment[]
+  favorites           Favorite[]
+  itineraries         Itinerary[]
+  notificationConfigs NotificationConfig[]
+  notifications       Notification[]
+  orders              Order[]
+  posts               Post[]
+  reviews             Review[]
 
   @@map("users")
 }
@@ -177,12 +177,12 @@ model Order {
   priority        OrderPriority  @default(LOW)
   priorityScore   Int            @default(0)
   urgencyLevel    UrgencyLevel   @default(NORMAL)
+  notifications   Notification[]
   accommodation   Accommodation? @relation(fields: [accommodationId], references: [id])
   attraction      Attraction?    @relation(fields: [attractionId], references: [id])
   restaurant      Restaurant?    @relation(fields: [restaurantId], references: [id])
   room            Room?          @relation(fields: [roomId], references: [id])
   user            User           @relation(fields: [userId], references: [id])
-  notifications   Notification[]
 
   @@index([userId, status])
   @@index([priority, status])
@@ -191,31 +191,31 @@ model Order {
 }
 
 model Notification {
-  id              String              @id @default(cuid())
-  userId          String
-  orderId         String?
-  type            NotificationType
-  channel         NotificationChannel
-  status          NotificationStatus  @default(PENDING)
-  priority        NotificationPriority @default(NORMAL)
-  title           String
-  content         String
-  templateId      String?
-  metadata        Json?               // 额外的通知元数据
-  scheduledAt     DateTime?           // 计划发送时间
-  sentAt          DateTime?           // 实际发送时间
-  deliveredAt     DateTime?           // 送达确认时间
-  readAt          DateTime?           // 阅读时间（站内信）
-  retryCount      Int                 @default(0)
-  maxRetries      Int                 @default(3)
-  lastRetryAt     DateTime?
-  errorMessage    String?
-  externalId      String?             // 第三方服务返回的ID
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  user            User                @relation(fields: [userId], references: [id])
-  order           Order?              @relation(fields: [orderId], references: [id])
-  template        NotificationTemplate? @relation(fields: [templateId], references: [id])
+  id           String                @id @default(cuid())
+  userId       String
+  orderId      String?
+  type         NotificationType
+  channel      NotificationChannel
+  status       NotificationStatus    @default(PENDING)
+  priority     NotificationPriority  @default(NORMAL)
+  title        String
+  content      String
+  templateId   String?
+  metadata     Json?
+  scheduledAt  DateTime?
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  readAt       DateTime?
+  retryCount   Int                   @default(0)
+  maxRetries   Int                   @default(3)
+  lastRetryAt  DateTime?
+  errorMessage String?
+  externalId   String?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  order        Order?                @relation(fields: [orderId], references: [id])
+  template     NotificationTemplate? @relation(fields: [templateId], references: [id])
+  user         User                  @relation(fields: [userId], references: [id])
 
   @@index([userId, status])
   @@index([type, status])
@@ -226,31 +226,31 @@ model Notification {
 }
 
 model NotificationTemplate {
-  id              String              @id @default(cuid())
-  name            String              @unique
-  type            NotificationType
-  channel         NotificationChannel
-  title           String
-  content         String              // 支持模板变量，如 {{userName}}, {{orderAmount}}
-  isActive        Boolean             @default(true)
-  variables       String[]            // 模板变量列表
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  notifications   Notification[]
+  id            String              @id @default(cuid())
+  name          String              @unique
+  type          NotificationType
+  channel       NotificationChannel
+  title         String
+  content       String
+  isActive      Boolean             @default(true)
+  variables     String[]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  notifications Notification[]
 
   @@index([type, channel])
   @@map("notification_templates")
 }
 
 model NotificationConfig {
-  id              String              @id @default(cuid())
-  userId          String
-  channel         NotificationChannel
-  isEnabled       Boolean             @default(true)
-  preferences     Json?               // 用户偏好设置
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  user            User                @relation(fields: [userId], references: [id])
+  id          String              @id @default(cuid())
+  userId      String
+  channel     NotificationChannel
+  isEnabled   Boolean             @default(true)
+  preferences Json?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  user        User                @relation(fields: [userId], references: [id])
 
   @@unique([userId, channel])
   @@map("notification_configs")

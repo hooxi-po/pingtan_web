@@ -99,6 +99,57 @@ export interface NotificationServiceConfig {
   }
 }
 
+// 预订成功通知专用接口
+export interface BookingConfirmationData {
+  confirmationNumber: string
+  serviceName: string
+  serviceType: 'attraction' | 'accommodation' | 'restaurant' | 'package' | 'experience'
+  serviceDescription: string
+  bookingDate: string
+  bookingTime?: string
+  totalAmount: number
+  currency: string
+  customerName: string
+  customerPhone?: string
+  customerEmail?: string
+  specialRequests?: string
+  cancellationPolicy?: string
+  contactInfo?: {
+    phone: string
+    email: string
+    address?: string
+  }
+}
+
+// 预订通知创建请求接口
+export interface CreateBookingNotificationRequest {
+  userId: string
+  orderId: string
+  bookingData: BookingConfirmationData
+  channel?: NotificationChannel
+  priority?: NotificationPriority
+  scheduledAt?: Date
+}
+
+// 站内通知UI数据接口
+export interface InAppNotificationData {
+  id: string
+  title: string
+  content: string
+  type: NotificationType
+  priority: NotificationPriority
+  isRead: boolean
+  createdAt: Date
+  metadata?: {
+    confirmationNumber?: string
+    orderId?: string
+    actionUrl?: string
+    actionLabel?: string
+    amount?: number
+    currency?: string
+  }
+}
+
 // 通知统计接口
 export interface NotificationStats {
   total: number

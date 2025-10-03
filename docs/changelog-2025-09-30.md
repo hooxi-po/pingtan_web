@@ -1,6 +1,49 @@
 # 平潭旅游网站 - 更新日志
 
-## 📋 2025-10-02 更新记录 (最新)
+## 📋 2025-10-02 构建错误修复 (最新)
+
+**更新时间**: 2025-10-02 23:10:00
+
+### 🔧 Vercel 构建错误修复
+
+#### 1. TripPlanner 组件导入修复
+- **文件**: `src/app/profile/page.tsx`
+- **问题**: `Cannot find name 'TripPlanner'` 类型错误
+- **解决方案**: 添加缺失的导入语句 `import TripPlanner from "@/components/ui/trip-planner"`
+- **状态**: ✅ 已修复
+
+#### 2. OrderManagement 组件类型修复
+- **文件**: `src/components/ui/order-management.tsx`
+- **问题**: `onUpdateOrder` 函数参数类型不匹配
+- **原始类型**: `(orderId: string, updates: any) => void`
+- **修复后类型**: `(payload: { orderId: string, priority?: string, isPriority?: boolean, urgencyLevel?: string, status?: string }) => Promise<void>`
+- **状态**: ✅ 已修复
+
+#### 3. Tabs 组件缺失修复
+- **文件**: `src/components/ui/tabs.tsx` (新建)
+- **问题**: `Cannot find module '@/components/ui/tabs'` 错误
+- **解决方案**: 
+  - 创建标准的 shadcn/ui tabs 组件
+  - 安装所需依赖 `@radix-ui/react-tabs`
+- **状态**: ✅ 已修复
+
+#### 4. 构建验证
+- **命令**: `npx next build --turbopack`
+- **结果**: ✅ 构建成功
+- **输出大小**: 
+  - 最大页面: `/profile` (79.4 kB)
+  - 共享 JS: 141 kB
+  - 中间件: 65 kB
+
+### 📊 修复统计
+- **修复文件数**: 3 个
+- **新建文件数**: 1 个
+- **安装依赖数**: 1 个
+- **构建状态**: ✅ 成功
+
+---
+
+## 📋 2025-10-02 更新记录
 
 **更新时间**: 2025-10-02 23:00:41
 

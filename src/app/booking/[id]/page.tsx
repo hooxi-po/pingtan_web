@@ -1,50 +1,118 @@
 "use client"
 
-import { useMemo, useState, use as usePromise } from "react"
+import { useMemo, useState, useEffect, use as usePromise } from "react"
 import Navigation from "@/components/ui/navigation"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, Users, Bed, Star, MapPin, CreditCard, Apple, CheckCircle } from "lucide-react"
+import { Calendar, Users, Bed, Star, MapPin, CreditCard, Apple, CheckCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { toast } from 'sonner'
 
-// 临时住宿数据（与 AccommodationShowcase 保持一致的结构，后续可抽离到数据源）
-const accommodations = [
+// 住宿类型定义
+interface Accommodation {
+  id: string
+  name: string
+  nameEn?: string
+  nameTw?: string
+  description: string
+  type: string
+  location: string
+  address: string
+  images: string[]
+  amenities: string[]
+  roomTypes: any[]
+  priceRange: string
+  rating: number
+  reviewCount: number
+  contactPhone?: string
+  contactEmail?: string
+  checkInTime?: string
+  checkOutTime?: string
+  policies?: any
+  price: number
+  popular: boolean
+  features: string[]
+  maxGuests: number
+  bedrooms: number
+  category: string
+  image: string
+}
+
+// 临时住宿数据（作为fallback，当API失败时使用）
+const fallbackAccommodations = [
   {
-    id: 1,
+    id: "1",
     name: "海景石头厝民宿",
     description: "传统石头厝改造的精品民宿，面朝大海，春暖花开",
     image:
       "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'><defs><linearGradient id='sunset' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23ff7f50;stop-opacity:1' /><stop offset='100%' style='stop-color:%23ffd700;stop-opacity:1' /></linearGradient></defs><rect width='400' height='300' fill='url(%23sunset)'/><rect x='100' y='150' width='200' height='100' fill='%23696969' stroke='%232f2f2f' stroke-width='2'/><polygon points='100,150 200,100 300,150' fill='%23cd853f'/><rect x='150' y='180' width='30' height='40' fill='%23654321'/><rect x='220' y='180' width='30' height='40' fill='%23654321'/><circle cx='350' cy='80' r='30' fill='%23ffff00' opacity='0.8'/></svg>",
     type: "民宿",
     rating: 4.8,
-    price: "¥288",
+    price: 288,
     location: "坛南湾",
+    address: "坛南湾海滨路123号",
+    priceRange: "中档",
+    reviewCount: 156,
+    maxGuests: 4,
+    bedrooms: 2,
+    category: "民俗体验",
+    features: ["WiFi", "海景", "停车场", "早餐"],
+    amenities: ["WiFi", "海景", "停车场", "早餐"],
+    roomTypes: [],
+    images: [],
+    popular: true
   },
   {
-    id: 2,
+    id: "2",
     name: "蓝眼泪度假酒店",
     description: "豪华海滨度假酒店，观赏蓝眼泪奇观的最佳位置，享受顶级度假体验",
     image: "/hotels/Gemini_Generated_Image_3.png",
     type: "酒店",
     rating: 4.9,
-    price: "¥588",
+    price: 588,
     location: "坛南湾",
+    address: "坛南湾度假区海景大道88号",
+    priceRange: "高档",
+    reviewCount: 298,
+    maxGuests: 6,
+    bedrooms: 3,
+    category: "度假休闲",
+    features: ["WiFi", "游泳池", "SPA", "餐厅"],
+    amenities: ["WiFi", "游泳池", "SPA", "餐厅"],
+    roomTypes: [],
+    images: [],
+    popular: true
   },
   {
-    id: 3,
+    id: "3",
     name: "渔村客栈",
     description: "体验渔民生活的特色客栈，品尝最新鲜的海鲜",
     image:
       "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'><rect width='400' height='300' fill='%2387ceeb'/><rect x='80' y='180' width='80' height='80' fill='%23deb887' stroke='%23cd853f' stroke-width='2'/><rect x='200' y='170' width='90' height='90' fill='%23f5deb3' stroke='%23cd853f' stroke-width='2'/><polygon points='80,180 120,150 160,180' fill='%23d2691e'/><polygon points='200,170 245,140 290,170' fill='%23daa520'/><path d='M50,260 Q100,250 150,255 T250,260 T350,255' stroke='%234169e1' stroke-width='3' fill='none'/></svg>",
     type: "客栈",
     rating: 4.6,
-    price: "¥168",
+    price: 168,
     location: "流水镇",
+    address: "流水镇渔港路56号",
+    priceRange: "经济",
+    reviewCount: 89,
+    maxGuests: 2,
+    bedrooms: 1,
+    category: "民俗体验",
+    features: ["WiFi", "海鲜", "渔港", "体验"],
+    amenities: ["WiFi", "海鲜", "渔港", "体验"],
+    roomTypes: [],
+    images: [],
+    popular: false
   },
 ]
 
-function parsePrice(priceStr: string) {
+function parsePrice(priceStr: string | number) {
+  if (typeof priceStr === 'number') return priceStr
   return Number(priceStr.replace(/[¥,]/g, "")) || 0
 }
 
@@ -58,11 +126,83 @@ function getNights(checkin?: string, checkout?: string) {
 
 export default function BookingPage({ params }: { params: Promise<{ id: string }> }) {
   const p = usePromise(params) as { id: string }
-  const accommodation = useMemo(() => {
-    const idNum = Number(p?.id)
-    return accommodations.find((a) => a.id === idNum)
-  }, [p?.id])
-  const isRestaurant = !accommodation
+  
+  // 住宿数据状态
+  const [accommodation, setAccommodation] = useState<Accommodation | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
+  // 获取住宿信息
+  useEffect(() => {
+    const fetchAccommodation = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        // 首先尝试从API获取数据
+        const response = await fetch(`/api/accommodations/${p.id}`)
+        
+        if (response.ok) {
+          const data = await response.json()
+          setAccommodation(data.accommodation)
+        } else {
+          // API失败时，尝试使用fallback数据
+          const fallbackAccommodation = fallbackAccommodations.find((a) => a.id === p.id)
+          if (fallbackAccommodation) {
+            setAccommodation(fallbackAccommodation)
+          } else {
+            throw new Error('住宿不存在')
+          }
+        }
+      } catch (err) {
+        console.error('获取住宿信息失败:', err)
+        
+        // 尝试使用fallback数据
+        const fallbackAccommodation = fallbackAccommodations.find((a) => a.id === p.id)
+        if (fallbackAccommodation) {
+          setAccommodation(fallbackAccommodation)
+          setError(null)
+        } else {
+          setError(err instanceof Error ? err.message : '获取住宿信息失败')
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (p.id && p.id !== 'undefined') {
+      fetchAccommodation()
+    } else {
+      setError('无效的住宿ID')
+      setLoading(false)
+    }
+  }, [p.id])
+  
+  // 修复：明确判断是否为餐厅预订
+  // 如果URL参数包含restaurant标识或者是非数字ID，则判断为餐厅预订
+  const isRestaurant = useMemo(() => {
+    const id = p?.id
+    if (!id) return false
+    
+    // 如果是纯数字ID且能找到对应住宿，则为住宿预订
+    if (accommodation) {
+      return false
+    }
+    
+    // 如果ID包含restaurant关键词，则为餐厅预订
+    if (id.toLowerCase().includes('restaurant') || id.toLowerCase().includes('餐厅')) {
+      return true
+    }
+    
+    // 如果是非数字ID（如百度地图的uid），则判断为餐厅预订
+    const idNum = Number(id)
+    if (isNaN(idNum)) {
+      return true
+    }
+    
+    // 默认情况下，如果找不到对应住宿且不是明确的餐厅标识，则显示错误页面
+    return false
+  }, [p?.id, accommodation])
 
   const [checkin, setCheckin] = useState<string>("")
   const [checkout, setCheckout] = useState<string>("")
@@ -206,29 +346,90 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
     <main className="min-h-screen">
       <Navigation />
       <div className="pt-16">
-        {/* Header */}
-        <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
-          <div className="container mx-auto px-4 text-center">
-            <Badge variant="secondary" className="mb-4 rounded-full bg-white/30 text-white border border-white/30 backdrop-blur px-3 py-1.5">
-              {/* 修改标题徽章 */}
-              {isRestaurant ? (
-                <><Calendar className="w-4 h-4 mr-2" /> 餐饮预订</>
-              ) : (
-                <><Bed className="w-4 h-4 mr-2" /> 在线预订</>
-              )}
-            </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
-              {accommodation ? accommodation.name : (isRestaurant ? "餐厅预订" : "住宿预订")}
-            </h1>
-            <p className="text-lg text-blue-100 max-w-2xl mx-auto">
-              {isRestaurant ? "请选择就餐日期与人数，系统将为您完成下单与通知" : "请选择入住日期与人数，系统将为您计算价格并完成支付"}
-            </p>
-          </div>
-        </section>
+        {/* 加载状态 */}
+        {loading && (
+          <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+            <div className="container mx-auto px-4 text-center">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+              <h1 className="text-2xl font-bold mb-3">加载中...</h1>
+              <p className="text-blue-100">正在获取预订信息，请稍候</p>
+            </div>
+          </section>
+        )}
 
-        {/* Booking Form */}
-        <section className="py-12">
-          <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* 错误状态 */}
+        {!loading && error && (
+          <section className="py-16 bg-gradient-to-r from-red-600 to-red-800 text-white">
+            <div className="container mx-auto px-4 text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
+                加载失败
+              </h1>
+              <p className="text-lg text-red-100 max-w-2xl mx-auto mb-8">
+                {error}
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Button asChild variant="secondary" className="rounded-full">
+                  <Link href="/accommodations">查看住宿</Link>
+                </Button>
+                <Button asChild variant="secondary" className="rounded-full">
+                  <Link href="/restaurants">查看餐厅</Link>
+                </Button>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* 添加错误处理：如果既不是有效住宿也不是餐厅预订，显示错误页面 */}
+        {!loading && !error && !accommodation && !isRestaurant && (
+          <section className="py-16 bg-gradient-to-r from-red-600 to-red-800 text-white">
+            <div className="container mx-auto px-4 text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
+                页面未找到
+              </h1>
+              <p className="text-lg text-red-100 max-w-2xl mx-auto mb-8">
+                抱歉，您访问的预订页面不存在。请检查链接是否正确。
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Button asChild variant="secondary" className="rounded-full">
+                  <Link href="/accommodations">查看住宿</Link>
+                </Button>
+                <Button asChild variant="secondary" className="rounded-full">
+                  <Link href="/restaurants">查看餐厅</Link>
+                </Button>
+              </div>
+            </div>
+          </section>
+        )}
+        
+        {/* 只有在有效预订时才显示预订表单 */}
+        {!loading && !error && (accommodation || isRestaurant) && (
+          <>
+            {/* Header */}
+            <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+              <div className="container mx-auto px-4 text-center">
+                <Badge variant="secondary" className="mb-4 rounded-full bg-white/30 text-white border border-white/30 backdrop-blur px-3 py-1.5">
+                  {/* 修改标题徽章 */}
+                  {isRestaurant ? (
+                    <><Calendar className="w-4 h-4 mr-2" /> 餐饮预订</>
+                  ) : (
+                    <><Bed className="w-4 h-4 mr-2" /> 在线预订</>
+                  )}
+                </Badge>
+                <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
+                  {accommodation ? accommodation.name : (isRestaurant ? "餐厅预订" : "住宿预订")}
+                </h1>
+                <p className="text-lg text-blue-100 max-w-2xl mx-auto">
+                  {isRestaurant ? "请选择就餐日期与人数，系统将为您完成下单与通知" : "请选择入住日期与人数，系统将为您计算价格并完成支付"}
+                </p>
+              </div>
+            </section>
+          </>
+        )}
+
+        {/* Booking Form - 只有在有效预订时才显示 */}
+        {!loading && !error && (accommodation || isRestaurant) && (
+          <section className="py-12">
+            <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left: Info */}
             <Card className="lg:col-span-2 rounded-2xl bg-white/70 backdrop-blur border border-white/60 shadow-sm">
               <CardHeader>
@@ -499,6 +700,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
             </Card>
           </div>
         </section>
+        )}
 
         {/* 模拟支付弹层 */}
         {showPaymentModal && (
@@ -518,7 +720,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                     确认支付
                   </Button>
                 ) : (
-                  <div className="mt-4 p-3 rounded-2xl bg-white/80 border border白/60 backdrop-blur text-center">
+                  <div className="mt-4 p-3 rounded-2xl bg-white/80 border border-white/60 backdrop-blur text-center">
                     <div className="inline-flex items-center text-green-600 font-medium">
                       <CheckCircle className="w-5 h-5 mr-1" /> 支付成功
                     </div>

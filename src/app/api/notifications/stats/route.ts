@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { NotificationStatus, NotificationChannel, NotificationType } from '@prisma/client'
 import { NotificationService } from '@/lib/notification/service'
+import { notificationLogger } from '@/lib/notification/notification-logger'
+import { z } from 'zod'
 
 // 通知服务配置
 const notificationConfig = {
@@ -32,6 +34,14 @@ const notificationConfig = {
 
 const notificationService = new NotificationService(prisma, notificationConfig)
 
+// 查询统计数据请求验证模式
+const statsQuerySchema = z.object({
+  userId: z.string().optional(),
+  startDate: z.string().optional().transform(val => val ? new Date(val) : undefined),
+  endDate: z.string().optional().transform(val => val ? new Date(val) : undefined),
+  type: z.enum(['overview', 'detailed']).optional().default('overview')
+})
+
 /**
  * GET /api/notifications/stats - 获取通知统计信息
  */
@@ -43,183 +53,84 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-    const startDate = searchParams.get('startDate')
-    const endDate = searchParams.get('endDate')
-    const type = searchParams.get('type') // 'overview' | 'detailed'
+    const queryParams = Object.fromEntries(searchParams.entries())
+    
+    // 验证查询参数
+    const validatedQuery = statsQuerySchema.parse(queryParams)
 
-    // 确定要查询的用户ID
-    let targetUserId: string | undefined = undefined
+    // 非管理员用户只能查看自己的统计数据
+    let userId = validatedQuery.userId
     if (session.user.role !== 'ADMIN') {
-      targetUserId = session.user.id
-    } else if (userId) {
-      targetUserId = userId
+      userId = session.user.id
     }
 
-    // 构建时间范围条件
-    const dateFilter: any = {}
-    if (startDate) {
-      dateFilter.gte = new Date(startDate)
-    }
-    if (endDate) {
-      dateFilter.lte = new Date(endDate)
-    }
+    // 使用 NotificationLogger 获取统计数据
+    const stats = await notificationLogger.getNotificationStats(
+      userId,
+      validatedQuery.startDate,
+      validatedQuery.endDate
+    )
 
-    const whereCondition: any = {}
-    if (targetUserId) {
-      whereCondition.userId = targetUserId
-    }
-    if (Object.keys(dateFilter).length > 0) {
-      whereCondition.createdAt = dateFilter
-    }
+    return NextResponse.json({
+      success: true,
+      data: stats
+    })
 
-    if (type === 'detailed') {
-      // 详细统计
-      const [
-        totalNotifications,
-        statusStats,
-        channelStats,
-        typeStats,
-        priorityStats,
-        dailyStats
-      ] = await Promise.all([
-        // 总通知数
-        prisma.notification.count({ where: whereCondition }),
-        
-        // 按状态统计
-        prisma.notification.groupBy({
-          by: ['status'],
-          where: whereCondition,
-          _count: { id: true }
-        }),
-        
-        // 按渠道统计
-        prisma.notification.groupBy({
-          by: ['channel'],
-          where: whereCondition,
-          _count: { id: true }
-        }),
-        
-        // 按类型统计
-        prisma.notification.groupBy({
-          by: ['type'],
-          where: whereCondition,
-          _count: { id: true }
-        }),
-        
-        // 按优先级统计
-        prisma.notification.groupBy({
-          by: ['priority'],
-          where: whereCondition,
-          _count: { id: true }
-        }),
-        
-        // 按日期统计（最近30天）
-        prisma.$queryRaw`
-          SELECT 
-            DATE(createdAt) as date,
-            COUNT(*) as count,
-            status
-          FROM Notification 
-          WHERE ${targetUserId ? `userId = '${targetUserId}' AND` : ''} 
-            createdAt >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-          GROUP BY DATE(createdAt), status
-          ORDER BY date DESC
-        `
-      ])
-
-      return NextResponse.json({
-        overview: {
-          total: totalNotifications,
-          byStatus: statusStats.reduce((acc, item) => {
-            acc[item.status] = item._count.id
-            return acc
-          }, {} as Record<string, number>),
-          byChannel: channelStats.reduce((acc, item) => {
-            acc[item.channel] = item._count.id
-            return acc
-          }, {} as Record<string, number>),
-          byType: typeStats.reduce((acc, item) => {
-            acc[item.type] = item._count.id
-            return acc
-          }, {} as Record<string, number>),
-          byPriority: priorityStats.reduce((acc, item) => {
-            acc[item.priority] = item._count.id
-            return acc
-          }, {} as Record<string, number>)
-        },
-        trends: {
-          daily: dailyStats
-        }
-      })
-    } else {
-      // 简单概览统计
-      const [
-        totalNotifications,
-        pendingCount,
-        sentCount,
-        failedCount,
-        deliveredCount
-      ] = await Promise.all([
-        prisma.notification.count({ where: whereCondition }),
-        prisma.notification.count({ 
-          where: { ...whereCondition, status: 'PENDING' } 
-        }),
-        prisma.notification.count({ 
-          where: { ...whereCondition, status: 'SENT' } 
-        }),
-        prisma.notification.count({ 
-          where: { ...whereCondition, status: 'FAILED' } 
-        }),
-        prisma.notification.count({ 
-          where: { ...whereCondition, status: 'DELIVERED' } 
-        })
-      ])
-
-      // 计算成功率
-      const successRate = totalNotifications > 0 
-        ? ((sentCount + deliveredCount) / totalNotifications * 100).toFixed(2)
-        : '0.00'
-
-      return NextResponse.json({
-        total: totalNotifications,
-        pending: pendingCount,
-        sent: sentCount,
-        failed: failedCount,
-        delivered: deliveredCount,
-        successRate: parseFloat(successRate)
-      })
-    }
   } catch (error) {
-    console.error('Failed to fetch notification stats:', error)
+    console.error('获取通知统计失败:', error)
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { 
+          error: '请求参数格式错误',
+          details: error.errors
+        },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: '获取通知统计失败' },
       { status: 500 }
     )
   }
 }
 
 /**
- * GET /api/notifications/stats/service - 获取通知服务统计
+ * DELETE /api/notifications/stats - 清理过期通知日志
  */
-export async function POST(request: NextRequest) {
+export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // 获取通知服务统计
-    const stats = await notificationService.getNotificationStats()
+    const { searchParams } = new URL(request.url)
+    const daysToKeep = parseInt(searchParams.get('daysToKeep') || '90')
+
+    if (daysToKeep < 1 || daysToKeep > 365) {
+      return NextResponse.json(
+        { error: '保留天数必须在1-365之间' },
+        { status: 400 }
+      )
+    }
+
+    const deletedCount = await notificationLogger.cleanupOldLogs(daysToKeep)
 
     return NextResponse.json({
       success: true,
-      stats
+      message: `成功清理 ${deletedCount} 条过期通知日志`,
+      data: {
+        deletedCount,
+        daysToKeep
+      }
     })
+
   } catch (error) {
-    console.error('Failed to fetch service stats:', error)
+    console.error('清理通知日志失败:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: '清理通知日志失败' },
       { status: 500 }
     )
   }

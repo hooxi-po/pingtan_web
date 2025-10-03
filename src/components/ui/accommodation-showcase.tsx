@@ -1,12 +1,91 @@
-"use client"
+'use client'
 
-import { useState, useMemo } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Star, MapPin, Users, Bed, Wifi, Car, Coffee, Heart, Eye, Calendar } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
+import React, { useState, useEffect, useMemo } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Heart, Eye, Star, MapPin, Users, Bed, Wifi, Car, Coffee, Waves } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+import Image from 'next/image'
+import Link from 'next/link'
+
+// 住宿数据接口 - 适配数据库返回格式
+interface Accommodation {
+  id: string
+  name: string
+  description: string
+  type: string
+  location: string
+  address: string
+  images: string[]
+  amenities: string[]
+  roomTypes: any[]
+  priceRange: string
+  rating: number
+  reviews: number
+  reviewCount: number
+  contactPhone?: string
+  contactEmail?: string
+  checkInTime?: string
+  checkOutTime?: string
+  policies?: string
+  // 兼容旧格式
+  price: number
+  popular: boolean
+  features: string[]
+  maxGuests: number
+  bedrooms: number
+  category: string
+  image: string
+}
+
+// 骨架屏组件
+const AccommodationSkeleton = () => (
+  <Card className="overflow-hidden">
+    <div className="relative">
+      <Skeleton className="h-48 w-full" />
+      <div className="absolute top-2 left-2">
+        <Skeleton className="h-6 w-16" />
+      </div>
+      <div className="absolute top-2 right-2 flex gap-2">
+        <Skeleton className="h-8 w-8 rounded-full" />
+        <Skeleton className="h-8 w-8 rounded-full" />
+      </div>
+    </div>
+    <CardContent className="p-4">
+      <div className="space-y-3">
+        <Skeleton className="h-6 w-3/4" />
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-4" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-4" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+        <div className="flex justify-between items-center">
+          <div>
+            <Skeleton className="h-6 w-20" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+          <Skeleton className="h-10 w-24" />
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+)
+
+// 加载状态组件
+const LoadingIndicator = () => (
+  <div className="flex flex-col items-center justify-center py-12">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+    <p className="text-gray-600">正在加载住宿数据...</p>
+  </div>
+)
 
 interface AccommodationShowcaseProps {
   searchQuery?: string
@@ -23,163 +102,55 @@ export default function AccommodationShowcase({
   priceRange = "all",
   sortBy = "rating"
 }: AccommodationShowcaseProps) {
-  const [favorites, setFavorites] = useState<number[]>([])
+  const [favorites, setFavorites] = useState<string[]>([])
+  const [accommodations, setAccommodations] = useState<Accommodation[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const accommodations = [
-    {
-      id: 1,
-      name: "海景石头厝民宿",
-      type: "民宿",
-      location: "平潭岛东部",
-      price: 288,
-      rating: 4.8,
-      reviews: 156,
-      image: "/hotels/Gemini_Generated_Image_3.png",
-      features: ["海景房", "石头厝", "免费WiFi", "停车位"],
-      description: "传统石头厝建筑，面朝大海，体验平潭特色民居文化",
-      amenities: ["免费WiFi", "空调", "海景房", "停车场"],
-      maxGuests: 4,
-      bedrooms: 2,
-      popular: true,
-      category: "文化体验",
-      priceRange: "中档"
-    },
-    {
-      id: 2,
-      name: "蓝眼泪度假酒店",
-      type: "度假酒店",
-      location: "坛南湾",
-      price: 588,
-      rating: 4.9,
-      reviews: 203,
-      image: "/hotels/Gemini_Generated_Image_1.png",
-      features: ["蓝眼泪观赏", "海滨位置", "豪华设施", "SPA服务"],
-      description: "豪华海滨度假酒店，观赏蓝眼泪奇观的最佳位置，享受顶级度假体验",
-      amenities: ["海滨位置", "游泳池", "SPA", "餐厅", "健身房", "私人海滩"],
-      maxGuests: 4,
-      bedrooms: 2,
-      popular: true,
-      category: "度假休闲",
-      priceRange: "高档"
-    },
-    {
-      id: 3,
-      name: "渔村客栈",
-      type: "客栈",
-      location: "流水镇",
-      price: 168,
-      rating: 4.6,
-      reviews: 89,
-      image: "/hotels/Gemini_Generated_Image_5.png",
-      features: ["渔村风情", "经济实惠", "当地美食", "文化体验"],
-      description: "体验渔村生活，品尝新鲜海鲜，感受淳朴民风",
-      amenities: ["渔村体验", "海鲜餐厅", "免费WiFi", "自行车租赁"],
-      maxGuests: 3,
-      bedrooms: 1,
-      popular: false,
-      category: "民俗体验",
-      priceRange: "经济"
-    },
-    {
-      id: 4,
-      name: "海景精品酒店",
-      type: "精品酒店",
-      location: "龙凤头海滨",
-      price: 428,
-      rating: 4.7,
-      reviews: 134,
-      image: "/hotels/Gemini_Generated_Image_4.png",
-      features: ["文创设计", "艺术氛围", "摄影基地", "亲子友好"],
-      description: "现代精品设计酒店，每间客房都配有私人海景阳台，艺术与舒适的完美结合",
-      amenities: ["精品设计", "海景阳台", "管家服务", "商务中心", "艺术画廊", "儿童乐园"],
-      maxGuests: 4,
-      bedrooms: 2,
-      popular: false,
-      category: "商务出行",
-      priceRange: "中高档"
-    },
-    {
-      id: 5,
-      name: "海边民宿小院",
-      type: "民宿",
-      location: "北港村",
-      price: 228,
-      rating: 4.5,
-      reviews: 67,
-      image: "/hotels/Gemini_Generated_Image_6.png",
-      features: ["私人海滩", "全包服务", "水上运动", "高端设施"],
-      description: "温馨小院，花园环绕，适合家庭度假和宠物出行",
-      amenities: ["庭院花园", "BBQ设施", "宠物友好", "免费早餐"],
-      maxGuests: 4,
-      bedrooms: 2,
-      popular: false,
-      category: "家庭度假",
-      priceRange: "中档"
-    },
-    {
-      id: 6,
-      name: "海景别墅",
-      type: "别墅",
-      location: "长江澳",
-      price: 888,
-      rating: 4.9,
-      reviews: 45,
-      image: "/hotels/Gemini_Generated_Image_2.png",
-      features: ["家庭友好", "温馨服务", "经济实惠", "便利位置"],
-      description: "奢华海景别墅，私人泳池和海滩，尊享私密度假体验",
-      amenities: ["私人泳池", "独栋别墅", "管家服务", "私人海滩"],
-      maxGuests: 5,
-      bedrooms: 2,
-      popular: true,
-      category: "奢华度假",
-      priceRange: "豪华"
-    }
-  ]
-
-  // 筛选和排序逻辑
-  const filteredAndSortedAccommodations = useMemo(() => {
-    let filtered = accommodations.filter(accommodation => {
-      const matchesSearch = accommodation.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          accommodation.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          accommodation.description.toLowerCase().includes(searchQuery.toLowerCase());
+  // 获取住宿数据（从 API）
+  useEffect(() => {
+    console.log('AccommodationShowcase: Loading data from API...');
+    
+    const fetchAccommodations = async () => {
+      setLoading(true)
       
-      const matchesType = selectedType === 'all' || accommodation.type === selectedType;
-      const matchesLocation = selectedLocation === 'all' || accommodation.location === selectedLocation;
-      
-      // Price range filter
-      let matchesPriceRange = true;
-      if (priceRange !== "all") {
-        const [min, max] = priceRange.split("-").map(p => p.replace("+", "")).map(Number)
-        if (priceRange.includes("+")) {
-          matchesPriceRange = accommodation.price >= min;
-        } else {
-          matchesPriceRange = accommodation.price >= min && accommodation.price <= max;
+      try {
+        // 构建查询参数
+        const params = new URLSearchParams()
+        if (searchQuery) params.append('search', searchQuery)
+        if (selectedType !== 'all') params.append('type', selectedType)
+        if (selectedLocation !== 'all') params.append('location', selectedLocation)
+        if (priceRange !== 'all') params.append('priceRange', priceRange)
+        if (sortBy) params.append('sortBy', sortBy)
+        
+        const response = await fetch(`/api/accommodations?${params.toString()}`)
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch accommodations')
         }
+        
+        const result = await response.json()
+        console.log('AccommodationShowcase: API data loaded:', result.data?.length || 0, 'items');
+        console.log('AccommodationShowcase: First item:', result.data?.[0]);
+        
+        setAccommodations(result.data || [])
+      } catch (error) {
+        console.error('AccommodationShowcase: Error loading data:', error)
+        setAccommodations([])
+      } finally {
+        setLoading(false)
       }
-      
-      return matchesSearch && matchesType && matchesLocation && matchesPriceRange;
-    });
+    }
 
-    // 排序
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low':
-          return a.price - b.price;
-        case 'price-high':
-          return b.price - a.price;
-        case 'rating':
-          return b.rating - a.rating;
-        case 'popular':
-          return (b.popular ? 1 : 0) - (a.popular ? 1 : 0);
-        default:
-          return 0;
-      }
-    });
+    fetchAccommodations()
+  }, [searchQuery, selectedType, selectedLocation, priceRange, sortBy]) // 依赖筛选条件
 
-    return filtered;
-  }, [searchQuery, selectedType, selectedLocation, priceRange, sortBy]);
+  // 由于数据已在 API 层进行筛选和排序，这里直接使用返回的数据
+  const filteredAndSortedAccommodations = useMemo(() => {
+    console.log('AccommodationShowcase: Using API filtered data:', accommodations.length, 'items');
+    return accommodations;
+  }, [accommodations]);
 
-  const toggleFavorite = (id: number) => {
+  const toggleFavorite = (id: string) => {
     setFavorites(prev => 
       prev.includes(id) 
         ? prev.filter(fav => fav !== id)
@@ -190,30 +161,54 @@ export default function AccommodationShowcase({
   return (
     <section className="py-16 bg-gradient-to-b from-white to-gray-50/50">
       <div className="container mx-auto px-4">
-        {/* Results Header */}
-        <div className="flex justify-between items-center mb-8">
+        {/* Loading State with Skeleton */}
+        {loading && (
           <div>
-            <h2 className="text-2xl font-bold mb-2">
-              找到 {filteredAndSortedAccommodations.length} 个住宿选择
-            </h2>
-            <p className="text-gray-600">
-              {searchQuery && `搜索 "${searchQuery}" 的结果`}
-              {selectedType !== "all" && ` · ${selectedType}`}
-              {selectedLocation !== "all" && ` · ${selectedLocation}`}
-            </p>
+            <div className="mb-8">
+              <Skeleton className="h-8 w-64 mb-2" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <AccommodationSkeleton key={index} />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+
+
+        {/* Results Header */}
+        {!loading && (
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">
+                找到 {filteredAndSortedAccommodations.length} 个住宿选择
+              </h2>
+              <p className="text-gray-600">
+                {searchQuery && `搜索 "${searchQuery}" 的结果`}
+                {selectedType !== "all" && ` · ${selectedType}`}
+                {selectedLocation !== "all" && ` · ${selectedLocation}`}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Accommodation Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {filteredAndSortedAccommodations.map((accommodation) => (
+        {!loading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {filteredAndSortedAccommodations.map((accommodation) => (
             <Card key={accommodation.id} className="group overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
               {/* Image Section */}
               <div className="relative overflow-hidden">
                 <img
-                  src={accommodation.image}
+                  src={accommodation.images?.[0] || accommodation.image || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800'}
                   alt={accommodation.name}
                   className="w-full h-48 sm:h-56 lg:h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800'
+                  }}
                 />
                 
                 {/* Overlay Elements */}
@@ -230,8 +225,15 @@ export default function AccommodationShowcase({
                     size="sm"
                     variant="ghost"
                     className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/80 backdrop-blur hover:bg-white/90 p-0"
+                    onClick={() => toggleFavorite(accommodation.id)}
                   >
-                    <Heart className="w-4 h-4 text-gray-600 hover:text-red-500 transition-colors" />
+                    <Heart 
+                      className={`w-4 h-4 transition-colors ${
+                        favorites.includes(accommodation.id) 
+                          ? 'text-red-500 fill-red-500' 
+                          : 'text-gray-600 hover:text-red-500'
+                      }`} 
+                    />
                   </Button>
                 </div>
                 
@@ -274,12 +276,12 @@ export default function AccommodationShowcase({
                   <Badge variant="outline" className="text-xs px-2 py-0.5 rounded-full">
                     {accommodation.type}
                   </Badge>
-                  <div className="text-right">
-                    <div className="text-lg sm:text-xl font-bold text-blue-600">
-                      ¥{accommodation.price}
+                    <div className="text-right">
+                      <div className="text-lg sm:text-xl font-bold text-blue-600">
+                        {accommodation.priceRange || `¥${accommodation.price}`}
+                      </div>
+                      <div className="text-xs text-gray-500">每晚</div>
                     </div>
-                    <div className="text-xs text-gray-500">每晚</div>
-                  </div>
                 </div>
 
                 {/* Description */}
@@ -331,7 +333,7 @@ export default function AccommodationShowcase({
                 {/* Reviews */}
                 <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100">
                   <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500">
-                    <span>{accommodation.reviews} 条评价</span>
+                    <span>{accommodation.reviewCount || accommodation.reviews || 0} 条评价</span>
                     <span>最近预订: 2小时前</span>
                   </div>
                 </div>
@@ -339,9 +341,10 @@ export default function AccommodationShowcase({
             </Card>
           ))}
         </div>
+        )}
 
         {/* No Results */}
-        {filteredAndSortedAccommodations.length === 0 && (
+        {!loading && filteredAndSortedAccommodations.length === 0 && (
           <div className="text-center py-16">
             <div className="text-gray-400 text-6xl mb-4">🏨</div>
             <h3 className="text-xl font-semibold text-gray-600 mb-2">暂无符合条件的住宿</h3>
@@ -350,7 +353,7 @@ export default function AccommodationShowcase({
         )}
 
         {/* Load More Button */}
-        {filteredAndSortedAccommodations.length > 0 && (
+        {!loading && filteredAndSortedAccommodations.length > 0 && (
           <div className="text-center mt-12">
             <Button 
               variant="outline" 

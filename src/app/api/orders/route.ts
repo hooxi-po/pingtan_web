@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { BookingNotificationService } from "@/lib/notification/booking-notification"
 
 // 类型与校验（简单内联校验，避免额外依赖）
 const allowedTypes = ["ATTRACTION", "ACCOMMODATION", "RESTAURANT", "PACKAGE", "EXPERIENCE"] as const
@@ -251,8 +252,61 @@ export async function POST(req: NextRequest) {
           paymentStatus: true, bookingDate: true, checkInDate: true, checkOutDate: true,
           priority: true, isPriority: true, urgencyLevel: true, priorityScore: true,
           createdAt: true, updatedAt: true,
+          contactName: true, contactPhone: true, contactEmail: true,
+          guestCount: true, specialRequests: true,
+          attractionId: true, accommodationId: true, roomId: true, restaurantId: true,
         }
       })
+
+      // 发送预订确认通知
+      try {
+        const bookingNotificationService = new BookingNotificationService()
+        
+        // 映射订单类型到服务类型
+        const serviceTypeMap: Record<string, 'attraction' | 'accommodation' | 'restaurant' | 'package' | 'experience'> = {
+          'ATTRACTION': 'attraction',
+          'ACCOMMODATION': 'accommodation', 
+          'RESTAURANT': 'restaurant',
+          'PACKAGE': 'package',
+          'EXPERIENCE': 'experience'
+        }
+        
+        const mappedServiceType = serviceTypeMap[created.type] || 'attraction'
+        
+        const bookingData = {
+          confirmationNumber: `PT${created.id.slice(-8).toUpperCase()}`,
+          serviceName: getServiceName(created.type, created),
+          serviceType: mappedServiceType,
+          serviceDescription: getServiceDescription(created.type, created),
+          bookingDate: created.bookingDate?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
+          bookingTime: created.checkInDate ? created.checkInDate.toISOString().split('T')[1].slice(0, 5) : '12:00',
+          totalAmount: created.totalAmount,
+          currency: 'CNY',
+          customerName: created.contactName || '客户',
+          customerPhone: created.contactPhone || undefined,
+          customerEmail: created.contactEmail || undefined,
+          specialRequests: created.specialRequests || undefined,
+          contactInfo: created.contactPhone && created.contactEmail ? {
+            phone: created.contactPhone,
+            email: created.contactEmail
+          } : undefined
+        }
+        
+        console.log('发送预订确认通知:', {
+          userId: currentUserId,
+          orderId: created.id,
+          bookingData
+        })
+        
+        await bookingNotificationService.sendBookingConfirmation({
+          userId: currentUserId,
+          orderId: created.id,
+          bookingData
+        })
+      } catch (notificationError) {
+        console.error('Failed to send booking confirmation notification:', notificationError)
+        // 不影响订单创建，只记录错误
+      }
 
       return NextResponse.json({ message: "订单创建成功", order: created })
     }
@@ -349,6 +403,63 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "优先级识别完成", count: updatedOrders.length, orders: updatedOrders })
   } catch (e: any) {
     console.error("Auto priority error:", e)
-    return NextResponse.json({ error: "自动识别失败" }, { status: 500 })
+    return NextResponse.json({ message: "自动识别失败" }, { status: 500 })
   }
+}
+
+// 辅助函数：获取服务名称
+function getServiceName(type: string, order: any): string {
+  switch (type) {
+    case 'ATTRACTION':
+      return '景点门票'
+    case 'ACCOMMODATION':
+      return '住宿预订'
+    case 'RESTAURANT':
+      return '餐厅预订'
+    case 'PACKAGE':
+      return '旅游套餐'
+    case 'EXPERIENCE':
+      return '体验项目'
+    default:
+      return '预订服务'
+  }
+}
+
+// 辅助函数：获取服务描述
+function getServiceDescription(type: string, order: any): string {
+  const serviceName = getServiceName(type, order)
+  const guestInfo = order.guestCount ? `${order.guestCount}人` : ''
+  const specialRequests = order.specialRequests ? `，特殊要求：${order.specialRequests}` : ''
+  
+  return `${serviceName}${guestInfo ? ` (${guestInfo})` : ''}${specialRequests}`
+}
+
+// 辅助函数：获取持续时间
+function getDuration(type: string, order: any): string {
+  if (type === 'ACCOMMODATION' && order.checkInDate && order.checkOutDate) {
+    const checkIn = new Date(order.checkInDate)
+    const checkOut = new Date(order.checkOutDate)
+    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+    return `${nights}晚`
+  }
+  
+  switch (type) {
+    case 'RESTAURANT':
+      return '2小时'
+    case 'ATTRACTION':
+      return '全天'
+    case 'EXPERIENCE':
+      return '半天'
+    case 'PACKAGE':
+      return '多天'
+    default:
+      return '待定'
+  }
+}
+
+// 辅助函数：获取位置信息
+function getLocation(type: string, order: any): string {
+  // 这里可以根据实际的关联ID查询具体位置
+  // 暂时返回通用位置信息
+  return '平潭岛'
 }

@@ -225,7 +225,7 @@ export class NotificationService {
    * 获取用户通知配置
    */
   private async getUserNotificationConfig(userId: string, channel: string) {
-    return await prisma.notificationConfig.findUnique({
+    const config = await prisma.notificationConfig.findUnique({
       where: {
         userId_channel: {
           userId,
@@ -233,6 +233,16 @@ export class NotificationService {
         }
       }
     })
+
+    // 如果用户没有配置，返回默认启用状态
+    if (!config) {
+      return {
+        isEnabled: true,
+        preferences: {}
+      }
+    }
+
+    return config
   }
 
   /**
@@ -304,6 +314,87 @@ export class NotificationService {
         this.logger.error(`Failed to process notification ${notification.id}`, { error })
       }
     }
+  }
+
+  /**
+   * 显示应用内弹窗通知
+   * 与新的苹果风格通知弹窗系统集成
+   */
+  async showModalNotification(
+    userId: string, 
+    notification: {
+      title: string
+      message: string
+      type: 'success' | 'error' | 'warning' | 'info'
+      priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+      actions?: Array<{ id: string; label: string }>
+      metadata?: string
+    }
+  ): Promise<void> {
+    try {
+      // 创建应用内通知记录
+      const inAppNotification = await prisma.notification.create({
+        data: {
+          userId,
+          type: this.mapNotificationType(notification.type),
+          channel: 'IN_APP',
+          priority: notification.priority || 'MEDIUM',
+          title: notification.title,
+          content: notification.message,
+          metadata: {
+            modalType: notification.type,
+            actions: notification.actions,
+            extraInfo: notification.metadata
+          },
+          status: 'PENDING'
+        }
+      })
+
+      // 发送到应用内通知服务
+      await this.inAppService.send({
+        userId,
+        title: notification.title,
+        content: notification.message,
+        metadata: {
+          notificationId: inAppNotification.id,
+          modalType: notification.type,
+          priority: notification.priority,
+          actions: notification.actions,
+          extraInfo: notification.metadata
+        }
+      })
+
+      // 更新状态为已发送
+      await prisma.notification.update({
+        where: { id: inAppNotification.id },
+        data: { 
+          status: 'DELIVERED',
+          sentAt: new Date(),
+          deliveredAt: new Date()
+        }
+      })
+
+      this.logger.info(`Modal notification sent to user ${userId}`, {
+        notificationId: inAppNotification.id,
+        type: notification.type
+      })
+    } catch (error) {
+      this.logger.error('Failed to show modal notification', { error, userId, notification })
+      throw error
+    }
+  }
+
+  /**
+   * 映射通知类型
+   */
+  private mapNotificationType(type: 'success' | 'error' | 'warning' | 'info') {
+    const typeMap = {
+      success: 'SUCCESS',
+      error: 'ERROR', 
+      warning: 'WARNING',
+      info: 'INFO'
+    }
+    return typeMap[type] || 'INFO'
   }
 
   /**

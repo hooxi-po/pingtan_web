@@ -13,6 +13,7 @@ import { User, Mail, Phone, Edit, Save, X, Settings, Upload } from "lucide-react
 import { OrderManagement } from "@/components/ui/order-management"
 import { Badge } from "@/components/ui/badge"
 import TripPlanner from "@/components/ui/trip-planner"
+import MessageCenter from "@/components/ui/message-center"
 
 export default function ProfilePage() {
   const { data: session, status } = useSession()
@@ -420,6 +421,46 @@ export default function ProfilePage() {
             onUpdateOrder={handleUpdateOrder}
             onExportOrders={exportCSV}
           />
+        )}
+
+        {activeTab === "messages" && (
+          <MessageCenter userId={user?.id || "demo-user"} />
+        )}
+
+        {activeTab === "collections" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>我的收藏</CardTitle>
+              <CardDescription>管理您收藏的景点、住宿和餐厅</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">收藏功能开发中...</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === "points" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>积分与会员</CardTitle>
+              <CardDescription>查看您的积分余额和会员等级</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">积分系统开发中...</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === "history" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>历史记录</CardTitle>
+              <CardDescription>查看您的浏览和操作历史</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">历史记录功能开发中...</p>
+            </CardContent>
+          </Card>
         )}
       </div>
     </main>
