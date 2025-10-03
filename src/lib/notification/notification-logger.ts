@@ -142,8 +142,6 @@ export class NotificationLogger {
 
       if (status === NotificationStatus.DELIVERED) {
         updateData.deliveredAt = new Date()
-      } else if (status === NotificationStatus.READ) {
-        updateData.readAt = new Date()
       } else if (status === NotificationStatus.FAILED && errorMessage) {
         updateData.errorMessage = errorMessage
       }
@@ -432,7 +430,7 @@ export class NotificationLogger {
             lt: cutoffDate
           },
           status: {
-            in: [NotificationStatus.DELIVERED, NotificationStatus.READ, NotificationStatus.FAILED]
+            in: [NotificationStatus.DELIVERED, NotificationStatus.FAILED]
           }
         }
       })

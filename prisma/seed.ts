@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, NotificationType, NotificationChannel, NotificationStatus, NotificationPriority, AccommodationType } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -44,24 +44,24 @@ async function main() {
   const templates = [
     {
       name: 'payment_success',
-      type: 'PAYMENT_SUCCESS',
-      channel: 'IN_APP',
+      type: NotificationType.PAYMENT_SUCCESS,
+      channel: NotificationChannel.IN_APP,
       title: '支付成功通知',
       content: '您的订单 {{orderId}} 支付成功，金额 {{amount}} 元。',
       variables: ['orderId', 'amount'],
     },
     {
       name: 'order_confirmed',
-      type: 'ORDER_CONFIRMED',
-      channel: 'IN_APP',
+      type: NotificationType.ORDER_CONFIRMED,
+      channel: NotificationChannel.IN_APP,
       title: '订单确认通知',
       content: '您的订单 {{orderId}} 已确认，预计 {{date}} 开始服务。',
       variables: ['orderId', 'date'],
     },
     {
       name: 'system_announcement',
-      type: 'SYSTEM_ANNOUNCEMENT',
-      channel: 'IN_APP',
+      type: NotificationType.SYSTEM_ANNOUNCEMENT,
+      channel: NotificationChannel.IN_APP,
       title: '系统公告',
       content: '{{content}}',
       variables: ['content'],
@@ -79,7 +79,7 @@ async function main() {
   console.log('创建通知模板完成')
 
   // 创建用户通知配置
-  const channels = ['SMS', 'EMAIL', 'IN_APP', 'PUSH'] as const
+  const channels = [NotificationChannel.SMS, NotificationChannel.EMAIL, NotificationChannel.IN_APP, NotificationChannel.PUSH] as const
   
   for (const user of [testUser, adminUser]) {
     for (const channel of channels) {
@@ -114,10 +114,10 @@ async function main() {
   const notifications = [
     {
       userId: testUser.id,
-      type: 'SYSTEM_ANNOUNCEMENT',
-      channel: 'IN_APP',
-      status: 'DELIVERED',
-      priority: 'NORMAL',
+      type: NotificationType.SYSTEM_ANNOUNCEMENT,
+      channel: NotificationChannel.IN_APP,
+      status: NotificationStatus.DELIVERED,
+      priority: NotificationPriority.NORMAL,
       title: '欢迎使用平潭旅游系统',
       content: '欢迎您使用平潭旅游系统！我们为您提供最优质的旅游服务。',
       sentAt: new Date(),
@@ -125,20 +125,20 @@ async function main() {
     },
     {
       userId: testUser.id,
-      type: 'PROMOTIONAL',
-      channel: 'IN_APP',
-      status: 'SENT',
-      priority: 'LOW',
+      type: NotificationType.PROMOTIONAL,
+      channel: NotificationChannel.IN_APP,
+      status: NotificationStatus.SENT,
+      priority: NotificationPriority.LOW,
       title: '春节特惠活动',
       content: '春节期间，所有景点门票8折优惠，快来预订吧！',
       sentAt: new Date(),
     },
     {
       userId: adminUser.id,
-      type: 'SYSTEM_ANNOUNCEMENT',
-      channel: 'IN_APP',
-      status: 'PENDING',
-      priority: 'HIGH',
+      type: NotificationType.SYSTEM_ANNOUNCEMENT,
+      channel: NotificationChannel.IN_APP,
+      status: NotificationStatus.PENDING,
+      priority: NotificationPriority.HIGH,
       title: '系统维护通知',
       content: '系统将于今晚23:00-01:00进行维护，期间可能影响部分功能使用。',
     },
@@ -162,7 +162,7 @@ async function main() {
       description: '传统石头厝建筑，面朝大海，春暖花开。体验最地道的平潭渔村生活。',
       descriptionEn: 'Traditional stone house architecture facing the sea. Experience authentic Pingtan fishing village life.',
       descriptionTw: '傳統石頭厝建築，面朝大海，春暖花開。體驗最地道的平潭漁村生活。',
-      type: 'STONE_HOUSE_HOMESTAY',
+      type: AccommodationType.STONE_HOUSE_HOMESTAY,
       address: '平潭县流水镇北港村',
       latitude: 25.5034,
       longitude: 119.7909,
@@ -206,7 +206,7 @@ async function main() {
       description: '现代化精品酒店，位于坛南湾畔，是观赏蓝眼泪奇观的最佳住宿选择。',
       descriptionEn: 'Modern boutique hotel located by Tannan Bay, the best accommodation choice for viewing the blue tears phenomenon.',
       descriptionTw: '現代化精品酒店，位於壇南灣畔，是觀賞藍眼淚奇觀的最佳住宿選擇。',
-      type: 'BOUTIQUE_HOTEL',
+      type: AccommodationType.BOUTIQUE_HOTEL,
       address: '平潭县潭城镇坛南湾',
       latitude: 25.4978,
       longitude: 119.7856,
@@ -250,7 +250,7 @@ async function main() {
       description: '体验渔家生活，品尝新鲜海鲜，感受平潭独特的海岛文化。',
       descriptionEn: 'Experience fisherman\'s life, taste fresh seafood, and feel the unique island culture of Pingtan.',
       descriptionTw: '體驗漁家生活，品嚐新鮮海鮮，感受平潭獨特的海島文化。',
-      type: 'GUESTHOUSE',
+      type: AccommodationType.GUESTHOUSE,
       address: '平潭县苏澳镇东美村',
       latitude: 25.5123,
       longitude: 119.8012,
@@ -294,7 +294,7 @@ async function main() {
       description: '坐落在半山腰的度假村，拥有绝佳的海景视野和完善的度假设施。',
       descriptionEn: 'A resort located on the hillside with excellent sea views and complete resort facilities.',
       descriptionTw: '坐落在半山腰的度假村，擁有絕佳的海景視野和完善的度假設施。',
-      type: 'RESORT',
+      type: AccommodationType.RESORT,
       address: '平潭县平原镇红岩山',
       latitude: 25.5089,
       longitude: 119.7723,
@@ -338,7 +338,7 @@ async function main() {
       description: '位于平潭古城区，融合传统文化与现代舒适，体验平潭深厚的历史底蕴。',
       descriptionEn: 'Located in Pingtan ancient city area, combining traditional culture with modern comfort, experience the profound historical heritage of Pingtan.',
       descriptionTw: '位於平潭古城區，融合傳統文化與現代舒適，體驗平潭深厚的歷史底蘊。',
-      type: 'BOUTIQUE_HOTEL',
+      type: AccommodationType.BOUTIQUE_HOTEL,
       address: '平潭县潭城镇古城街',
       latitude: 25.5012,
       longitude: 119.7889,
@@ -382,7 +382,7 @@ async function main() {
       description: '经济实惠的青年旅舍，距离海滩仅50米，是背包客和年轻旅行者的理想选择。',
       descriptionEn: 'An affordable youth hostel just 50 meters from the beach, ideal for backpackers and young travelers.',
       descriptionTw: '經濟實惠的青年旅舍，距離海灘僅50米，是背包客和年輕旅行者的理想選擇。',
-      type: 'GUESTHOUSE',
+      type: AccommodationType.GUESTHOUSE,
       address: '平潭县潭城镇海滨路',
       latitude: 25.4956,
       longitude: 119.7834,

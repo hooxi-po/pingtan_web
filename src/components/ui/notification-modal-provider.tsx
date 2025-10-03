@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, ReactNode } from 'react'
 import { InAppNotificationData } from '@/lib/notification/types'
+import { NotificationType, NotificationPriority } from '@prisma/client'
 import { NotificationModal } from './notification-modal'
 import { useNotificationModal } from '@/hooks/use-notification-modal'
 
@@ -104,11 +105,10 @@ export function createNotificationHelpers() {
     showSuccess: (title: string, content: string, actionLabel?: string, actionUrl?: string) => {
       const notification: InAppNotificationData = {
         id: `success-${Date.now()}`,
-        userId: 'current-user', // 这里应该从认证系统获取
         title,
         content,
-        type: 'ORDER_CONFIRMED' as any,
-        priority: 'MEDIUM' as any,
+        type: NotificationType.BOOKING_CONFIRMED,
+        priority: NotificationPriority.NORMAL,
         isRead: false,
         createdAt: new Date(),
         metadata: actionLabel ? { actionLabel, actionUrl } : undefined
@@ -122,11 +122,10 @@ export function createNotificationHelpers() {
     showError: (title: string, content: string, actionLabel?: string, actionUrl?: string) => {
       const notification: InAppNotificationData = {
         id: `error-${Date.now()}`,
-        userId: 'current-user',
         title,
         content,
-        type: 'PAYMENT_FAILED' as any,
-        priority: 'HIGH' as any,
+        type: NotificationType.PAYMENT_FAILED,
+        priority: NotificationPriority.HIGH,
         isRead: false,
         createdAt: new Date(),
         metadata: actionLabel ? { actionLabel, actionUrl } : undefined
@@ -140,11 +139,10 @@ export function createNotificationHelpers() {
     showInfo: (title: string, content: string, actionLabel?: string, actionUrl?: string) => {
       const notification: InAppNotificationData = {
         id: `info-${Date.now()}`,
-        userId: 'current-user',
         title,
         content,
-        type: 'SYSTEM_ANNOUNCEMENT' as any,
-        priority: 'LOW' as any,
+        type: NotificationType.SYSTEM_ANNOUNCEMENT,
+        priority: NotificationPriority.LOW,
         isRead: false,
         createdAt: new Date(),
         metadata: actionLabel ? { actionLabel, actionUrl } : undefined
@@ -158,11 +156,10 @@ export function createNotificationHelpers() {
     showWarning: (title: string, content: string, actionLabel?: string, actionUrl?: string) => {
       const notification: InAppNotificationData = {
         id: `warning-${Date.now()}`,
-        userId: 'current-user',
         title,
         content,
-        type: 'BOOKING_REMINDER' as any,
-        priority: 'MEDIUM' as any,
+        type: NotificationType.BOOKING_REMINDER,
+        priority: NotificationPriority.NORMAL,
         isRead: false,
         createdAt: new Date(),
         metadata: actionLabel ? { actionLabel, actionUrl } : undefined

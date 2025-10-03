@@ -51,27 +51,24 @@ export class BookingNotificationService {
     // 创建默认配置
     const defaultConfig = {
       sms: {
-        provider: 'aliyun',
-        accessKeyId: process.env.ALIYUN_SMS_ACCESS_KEY_ID || '',
-        accessKeySecret: process.env.ALIYUN_SMS_ACCESS_KEY_SECRET || '',
+        provider: 'aliyun' as const,
+        apiKey: process.env.ALIYUN_SMS_ACCESS_KEY_ID || '',
+        apiSecret: process.env.ALIYUN_SMS_ACCESS_KEY_SECRET || '',
         signName: process.env.ALIYUN_SMS_SIGN_NAME || '平潭旅游',
-        endpoint: process.env.ALIYUN_SMS_ENDPOINT || 'https://dysmsapi.aliyuncs.com'
+        templateCode: process.env.ALIYUN_SMS_TEMPLATE_CODE || 'SMS_123456789'
       },
       email: {
-        provider: 'smtp',
+        provider: 'smtp' as const,
         host: process.env.SMTP_HOST || 'smtp.qq.com',
         port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USER || '',
-          pass: process.env.SMTP_PASS || ''
-        },
+        username: process.env.SMTP_USER || '',
+        password: process.env.SMTP_PASS || '',
         from: process.env.SMTP_FROM || 'noreply@pingtan-travel.com'
       },
       push: {
-        provider: 'fcm',
-        serverKey: process.env.FCM_SERVER_KEY || '',
-        projectId: process.env.FCM_PROJECT_ID || ''
+        provider: 'fcm' as const,
+        apiKey: process.env.FCM_SERVER_KEY || '',
+        apiSecret: process.env.FCM_PROJECT_ID || ''
       }
     }
     
@@ -112,7 +109,7 @@ export class BookingNotificationService {
       }
 
       // 创建并发送通知
-      const result = await this.notificationService.createAndSendNotification({
+      const notificationId = await this.notificationService.createAndSendNotification({
         userId,
         orderId,
         type: NotificationType.ORDER_CONFIRMED,
@@ -124,7 +121,10 @@ export class BookingNotificationService {
         scheduledAt: request.scheduledAt
       })
 
-      return result
+      return {
+        success: true,
+        externalId: notificationId
+      }
     } catch (error) {
       console.error('发送预订确认通知失败:', error)
       return {
@@ -190,7 +190,7 @@ export class BookingNotificationService {
       }
 
       // 创建并发送通知
-      const result = await this.notificationService.createAndSendNotification({
+      const notificationId = await this.notificationService.createAndSendNotification({
         userId,
         orderId,
         type: notificationType,
@@ -202,7 +202,10 @@ export class BookingNotificationService {
         scheduledAt: request.scheduledAt
       })
 
-      return result
+      return {
+        success: true,
+        externalId: notificationId
+      }
     } catch (error) {
       console.error('发送预订状态变更通知失败:', error)
       return {
@@ -406,7 +409,7 @@ export class BookingNotificationService {
       const scheduledAt = new Date(Date.now() + reminderTime * 60 * 1000)
 
       // 创建提醒通知
-      const result = await this.notificationService.createAndSendNotification({
+      const notificationId = await this.notificationService.createAndSendNotification({
         userId: 'user-id', // 应该从订单中获取
         orderId,
         type: NotificationType.BOOKING_REMINDER,
@@ -417,7 +420,10 @@ export class BookingNotificationService {
         scheduledAt
       })
 
-      return result
+      return {
+        success: true,
+        externalId: notificationId
+      }
     } catch (error) {
       console.error('发送预订提醒失败:', error)
       return {

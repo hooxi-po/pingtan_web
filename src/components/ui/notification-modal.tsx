@@ -47,15 +47,28 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
     }
   }, [enableHapticFeedback])
 
-  // 自动关闭逻辑
+  // 处理关闭动画
+  const handleClose = useCallback(() => {
+    if (isLeaving) return
+    
+    setIsLeaving(true)
+    triggerHapticFeedback('light')
+    
+    // 等待动画完成后调用 onClose
+    setTimeout(() => {
+      onClose()
+    }, 300) // 与 CSS 动画时长匹配
+  }, [isLeaving, onClose, triggerHapticFeedback])
+
+  // 自动关闭计时器
   useEffect(() => {
-    if (!isVisible || autoCloseDelay <= 0 || isPaused) return
+    if (!isVisible || isPaused || autoCloseDelay <= 0) return
 
     const startTime = Date.now()
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime
-      const remaining = Math.max(0, autoCloseDelay - elapsed)
-      const progressPercent = (remaining / autoCloseDelay) * 100
+      const remaining = autoCloseDelay - elapsed
+      const progressPercent = (elapsed / autoCloseDelay) * 100
       
       setProgress(progressPercent)
       
@@ -71,19 +84,6 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
   // 鼠标悬停暂停自动关闭
   const handleMouseEnter = () => setIsPaused(true)
   const handleMouseLeave = () => setIsPaused(false)
-
-  // 处理关闭动画
-  const handleClose = useCallback(() => {
-    if (isLeaving) return
-    
-    setIsLeaving(true)
-    triggerHapticFeedback('light')
-    
-    // 等待动画完成后调用 onClose
-    setTimeout(() => {
-      onClose()
-    }, 300) // 与 CSS 动画时长匹配
-  }, [isLeaving, onClose, triggerHapticFeedback])
 
   // 处理操作按钮点击
   const handleAction = useCallback((actionId: string) => {
@@ -121,13 +121,16 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
     const iconProps = { className: "w-6 h-6 notification-icon" }
     
     switch (notification.type) {
-      case NotificationType.SUCCESS:
+      case NotificationType.BOOKING_CONFIRMED:
+      case NotificationType.PAYMENT_SUCCESS:
         return <CheckCircle {...iconProps} className={cn(iconProps.className, "text-green-500")} />
-      case NotificationType.ERROR:
+      case NotificationType.PAYMENT_FAILED:
+      case NotificationType.ORDER_CANCELLED:
         return <AlertCircle {...iconProps} className={cn(iconProps.className, "text-red-500")} />
-      case NotificationType.WARNING:
+      case NotificationType.BOOKING_REMINDER:
         return <AlertTriangle {...iconProps} className={cn(iconProps.className, "text-yellow-500")} />
-      case NotificationType.INFO:
+      case NotificationType.SYSTEM_ANNOUNCEMENT:
+      case NotificationType.PROMOTIONAL:
         return <Info {...iconProps} className={cn(iconProps.className, "text-blue-500")} />
       default:
         return <Clock {...iconProps} className={cn(iconProps.className, "text-gray-500")} />
@@ -139,7 +142,9 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
     switch (notification.priority) {
       case NotificationPriority.HIGH:
         return "border-red-200 bg-red-50/95 dark:bg-red-900/20 dark:border-red-800"
-      case NotificationPriority.MEDIUM:
+      case NotificationPriority.URGENT:
+        return "border-red-200 bg-red-50/95 dark:bg-red-900/20 dark:border-red-800"
+      case NotificationPriority.NORMAL:
         return "border-yellow-200 bg-yellow-50/95 dark:bg-yellow-900/20 dark:border-yellow-800"
       default:
         return "border-gray-200 bg-white/95 dark:bg-gray-800/95 dark:border-gray-700"
@@ -158,7 +163,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
       baseClasses.push("high-priority")
     }
     
-    if (notification.type === NotificationType.ERROR) {
+    if (notification.type === NotificationType.PAYMENT_FAILED || notification.type === NotificationType.ORDER_CANCELLED) {
       baseClasses.push("error")
     }
     
@@ -264,13 +269,13 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
             </div>
 
             {/* 消息内容 */}
-            {notification.message && (
+            {notification.content && (
               <div 
                 id="notification-description"
                 className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed notification-content"
                 style={{ lineHeight: '1.6' }}
               >
-                {notification.message}
+                {notification.content}
               </div>
             )}
 
@@ -285,23 +290,16 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
             )}
 
             {/* 操作按钮 */}
-            {notification.actions && notification.actions.length > 0 && (
+            {notification.metadata?.actionUrl && notification.metadata?.actionLabel && (
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                {notification.actions.map((action, index) => (
-                  <Button
-                    key={action.id}
-                    onClick={() => handleAction(action.id)}
-                    variant={index === 0 ? "default" : "outline"}
-                    size="sm"
-                    className={cn(
-                      "notification-button flex-1 sm:flex-none",
-                      index === 0 && "bg-blue-500 hover:bg-blue-600 text-white",
-                      index !== 0 && "border-gray-300 text-gray-700 hover:bg-gray-50"
-                    )}
-                  >
-                    {action.label}
-                  </Button>
-                ))}
+                <Button
+                  onClick={() => handleAction(notification.metadata?.actionUrl || '')}
+                  variant="default"
+                  size="sm"
+                  className="notification-button flex-1 sm:flex-none bg-blue-500 hover:bg-blue-600 text-white"
+                >
+                  {notification.metadata.actionLabel}
+                </Button>
               </div>
             )}
           </div>

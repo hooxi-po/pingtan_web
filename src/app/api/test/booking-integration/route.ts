@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       contactName: '测试用户',
       contactPhone: '13800138000',
       contactEmail: 'test@example.com',
-      priority: NotificationPriority.MEDIUM,
+      priority: NotificationPriority.NORMAL,
       userId: userId,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -122,15 +122,14 @@ export async function POST(request: NextRequest) {
             serviceType: 'attraction' as const,
             serviceDescription: '鼓浪屿风景区门票 - 成人票',
             bookingDate: testOrder.bookingDate.toISOString().split('T')[0],
-            bookingTime: '09:00-17:00',
             totalAmount: testOrder.amount,
             currency: testOrder.currency,
             customerName: testOrder.contactName,
             customerPhone: testOrder.contactPhone,
-            customerEmail: testOrder.contactEmail
+            customerEmail: testOrder.contactEmail,
+            oldStatus: OrderStatus.PENDING,
+            newStatus: OrderStatus.CONFIRMED
           },
-          oldStatus: OrderStatus.PENDING,
-          newStatus: OrderStatus.CONFIRMED,
           priority: testOrder.priority
         }
 
@@ -154,23 +153,8 @@ export async function POST(request: NextRequest) {
         console.log('测试预订提醒通知...')
         
         const reminderResult = await bookingService.sendBookingReminder(
-          testOrder.userId,
           testOrder.id,
-          {
-            confirmationNumber: `CF${Date.now()}`,
-            serviceName: '鼓浪屿门票',
-            serviceType: 'ATTRACTION',
-            serviceDescription: '鼓浪屿风景区门票 - 成人票',
-            bookingDate: testOrder.bookingDate,
-            bookingTime: '09:00-17:00',
-            amount: testOrder.amount,
-            currency: testOrder.currency,
-            customerName: testOrder.contactName,
-            customerPhone: testOrder.contactPhone,
-            customerEmail: testOrder.contactEmail
-          },
-          NotificationChannel.IN_APP,
-          testOrder.priority
+          60 // 60分钟后提醒
         )
 
         testResults.results.push({

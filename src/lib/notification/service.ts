@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, NotificationType } from '@prisma/client'
 import { 
   CreateNotificationRequest, 
   NotificationSendResult, 
@@ -326,7 +326,7 @@ export class NotificationService {
       title: string
       message: string
       type: 'success' | 'error' | 'warning' | 'info'
-      priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+      priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'
       actions?: Array<{ id: string; label: string }>
       metadata?: string
     }
@@ -338,7 +338,7 @@ export class NotificationService {
           userId,
           type: this.mapNotificationType(notification.type),
           channel: 'IN_APP',
-          priority: notification.priority || 'MEDIUM',
+          priority: notification.priority || 'NORMAL',
           title: notification.title,
           content: notification.message,
           metadata: {
@@ -387,14 +387,14 @@ export class NotificationService {
   /**
    * 映射通知类型
    */
-  private mapNotificationType(type: 'success' | 'error' | 'warning' | 'info') {
-    const typeMap = {
-      success: 'SUCCESS',
-      error: 'ERROR', 
-      warning: 'WARNING',
-      info: 'INFO'
+  private mapNotificationType(type: 'success' | 'error' | 'warning' | 'info'): NotificationType {
+    const typeMap: Record<string, NotificationType> = {
+      success: 'PAYMENT_SUCCESS',
+      error: 'SYSTEM_ANNOUNCEMENT', 
+      warning: 'SECURITY_ALERT',
+      info: 'SYSTEM_ANNOUNCEMENT'
     }
-    return typeMap[type] || 'INFO'
+    return typeMap[type] || 'SYSTEM_ANNOUNCEMENT'
   }
 
   /**

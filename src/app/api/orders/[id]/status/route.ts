@@ -19,10 +19,10 @@ const updateOrderStatusSchema = z.object({
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const orderId = params.id
+    const { id: orderId } = await params
     const body = await request.json()
     
     // 验证请求数据
@@ -101,12 +101,11 @@ export async function PATCH(
           serviceType,
           serviceDescription,
           bookingDate: updatedOrder.bookingDate?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
-          bookingTime: updatedOrder.bookingTime || undefined,
           totalAmount: updatedOrder.totalAmount,
-          currency: updatedOrder.currency || 'CNY',
-          customerName: updatedOrder.customerName || updatedOrder.user.name || '用户',
-          customerEmail: updatedOrder.customerEmail || updatedOrder.user.email || '',
-          customerPhone: updatedOrder.customerPhone || updatedOrder.user.phone || '',
+          currency: 'CNY',
+          customerName: updatedOrder.contactName || updatedOrder.user.name || '用户',
+          customerEmail: updatedOrder.contactEmail || updatedOrder.user.email || '',
+          customerPhone: updatedOrder.contactPhone || updatedOrder.user.phone || '',
           oldStatus,
           newStatus: status,
           changeReason,
@@ -173,10 +172,10 @@ export async function PATCH(
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const orderId = params.id
+    const { id: orderId } = await params
 
     // 查找订单
     const order = await prisma.order.findUnique({
@@ -187,8 +186,7 @@ export async function GET(
         createdAt: true,
         updatedAt: true,
         type: true,
-        totalAmount: true,
-        currency: true
+        totalAmount: true
       }
     })
 

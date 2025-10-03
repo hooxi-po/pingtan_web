@@ -18,66 +18,62 @@ export function NotificationModalDemo() {
   // 创建测试通知数据
   const createTestNotification = (
     type: 'success' | 'error' | 'warning' | 'info',
-    priority: NotificationPriority = NotificationPriority.MEDIUM
+    priority: NotificationPriority = NotificationPriority.NORMAL
   ): InAppNotificationData => {
     const baseId = `demo-${type}-${Date.now()}`
     
     const notifications = {
       success: {
         id: baseId,
-        userId: 'demo-user',
         title: '操作成功',
-        message: '您的预订已确认，我们将为您保留房间直到入住当天。',
-        type: NotificationType.SUCCESS,
+        content: '您的预订已确认，我们将为您保留房间直到入住当天。',
+        type: NotificationType.BOOKING_CONFIRMED,
         priority,
         isRead: false,
         createdAt: new Date(),
-        actions: [
-          { id: 'view', label: '查看详情' },
-          { id: 'dismiss', label: '知道了' }
-        ]
+        metadata: {
+          actionUrl: '/booking/details',
+          actionLabel: '查看详情'
+        }
       },
       error: {
         id: baseId,
-        userId: 'demo-user',
         title: '支付失败',
-        message: '很抱歉，您的支付未能成功完成。请检查支付信息或尝试其他支付方式。',
-        type: NotificationType.ERROR,
+        content: '很抱歉，您的支付未能成功完成。请检查支付信息或尝试其他支付方式。',
+        type: NotificationType.PAYMENT_FAILED,
         priority: NotificationPriority.HIGH,
         isRead: false,
         createdAt: new Date(),
-        actions: [
-          { id: 'retry', label: '重试支付' },
-          { id: 'contact', label: '联系客服' }
-        ]
+        metadata: {
+          actionUrl: '/payment/retry',
+          actionLabel: '重试支付'
+        }
       },
       warning: {
         id: baseId,
-        userId: 'demo-user',
         title: '预订提醒',
-        message: '您的入住时间即将到来，请提前准备相关证件并确认行程安排。',
-        type: NotificationType.WARNING,
+        content: '您的入住时间即将到来，请提前准备相关证件并确认行程安排。',
+        type: NotificationType.BOOKING_REMINDER,
         priority,
         isRead: false,
         createdAt: new Date(),
-        actions: [
-          { id: 'confirm', label: '确认入住' },
-          { id: 'modify', label: '修改预订' }
-        ]
+        metadata: {
+          actionUrl: '/booking/confirm',
+          actionLabel: '确认入住'
+        }
       },
       info: {
         id: baseId,
-        userId: 'demo-user',
         title: '系统公告',
-        message: '为了提供更好的服务体验，系统将在今晚23:00-01:00进行维护升级。',
-        type: NotificationType.INFO,
+        content: '为了提供更好的服务体验，系统将在今晚23:00-01:00进行维护升级。',
+        type: NotificationType.SYSTEM_ANNOUNCEMENT,
         priority,
         isRead: false,
         createdAt: new Date(),
-        metadata: '维护期间可能无法正常使用部分功能，敬请谅解。',
-        actions: [
-          { id: 'ok', label: '我知道了' }
-        ]
+        metadata: {
+          actionUrl: '/system/maintenance',
+          actionLabel: '了解详情'
+        }
       }
     }
 
@@ -111,8 +107,8 @@ export function NotificationModalDemo() {
   const showBatchNotifications = () => {
     const notifications = [
       createTestNotification('info', NotificationPriority.LOW),
-      createTestNotification('warning', NotificationPriority.MEDIUM),
-      createTestNotification('success', NotificationPriority.MEDIUM)
+      createTestNotification('warning', NotificationPriority.NORMAL),
+      createTestNotification('success', NotificationPriority.NORMAL)
     ]
     
     notifications.forEach((notification, index) => {
