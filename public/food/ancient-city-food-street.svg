@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#f87171" />
+    </linearGradient>
+    <style>
+      .title {
+        font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        font-size: 96px;
+        font-weight: 700;
+        fill: #ffffff;
+      }
+      .subtitle {
+        font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        font-size: 36px;
+        fill: rgba(255,255,255,0.8);
+      }
+      .badge {
+        font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        font-size: 28px;
+        fill: #0f172a;
+      }
+    </style>
+  </defs>
+  <rect width="1200" height="800" fill="url(#grad)" rx="48" />
+  <g transform="translate(80,420)">
+    <text class="title">海坛古城美食街</text>
+  </g>
+  <g transform="translate(80,520)">
+    <rect width="360" height="70" rx="35" fill="rgba(255,255,255,0.9)" />
+    <text x="40" y="47" class="badge">Pingtan Taste</text>
+  </g>
+  <g transform="translate(80,620)">
+    <text class="subtitle">寻味平潭 · 岛屿风味餐厅精选</text>
+  </g>
+</svg>
