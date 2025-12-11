@@ -130,7 +130,11 @@ export async function GET(request: Request) {
     items = items.slice(start, start + limit)
   }
 
-  return NextResponse.json(items)
+  return NextResponse.json(items, {
+    headers: {
+      "Cache-Control": "public, max-age=300, s-maxage=300",
+    },
+  })
 }
 
 export async function POST(request: Request) {
@@ -164,7 +168,7 @@ export async function POST(request: Request) {
   try {
     const res = await db.query<Accommodation>(
       `INSERT INTO accommodations (name, type, location, rating, reviews, price, original_price, image, tags, distance)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10)
        RETURNING id, name, type, location, rating, reviews, price, original_price AS "originalPrice", image, tags, distance`,
       [
         String(name),
@@ -175,7 +179,7 @@ export async function POST(request: Request) {
         price != null ? Number(price) : null,
         originalPrice != null ? Number(originalPrice) : null,
         image ? String(image) : null,
-        Array.isArray(tags) ? tags : [],
+        JSON.stringify(Array.isArray(tags) ? tags : []),
         distance ? String(distance) : null,
       ]
     )

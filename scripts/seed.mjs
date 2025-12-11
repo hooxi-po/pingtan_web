@@ -303,7 +303,7 @@ const restaurants = [
   {
     name: "海鲜大排档",
     category: "海鲜",
-    image: "/seafood-restaurant-fresh-catch.jpg",
+    image: "/food/seafood-restaurant-fresh-catch.svg",
     rating: 4.8,
     reviews: 3245,
     avgPrice: "¥120",
@@ -316,7 +316,7 @@ const restaurants = [
   {
     name: "老字号海蛎煎",
     category: "闽南小吃",
-    image: "/oyster-omelette-traditional.jpg",
+    image: "/food/oyster-omelette-traditional.svg",
     rating: 4.9,
     reviews: 2876,
     avgPrice: "¥35",
@@ -329,7 +329,7 @@ const restaurants = [
   {
     name: "渔家乐海鲜楼",
     category: "海鲜",
-    image: "/fisherman-restaurant-dining.jpg",
+    image: "/food/fisherman-restaurant-dining.svg",
     rating: 4.7,
     reviews: 1987,
     avgPrice: "¥150",
@@ -342,7 +342,7 @@ const restaurants = [
   {
     name: "平潭时来运转",
     category: "闽南菜",
-    image: "/minnan-cuisine-restaurant.jpg",
+    image: "/food/minnan-cuisine-restaurant.svg",
     rating: 4.6,
     reviews: 1654,
     avgPrice: "¥80",
@@ -355,7 +355,7 @@ const restaurants = [
   {
     name: "海边烧烤吧",
     category: "烧烤",
-    image: "/beachside-bbq-grill.jpg",
+    image: "/food/beachside-bbq-grill.svg",
     rating: 4.7,
     reviews: 2134,
     avgPrice: "¥90",
@@ -368,7 +368,7 @@ const restaurants = [
   {
     name: "石头厝私房菜",
     category: "闽南菜",
-    image: "/stone-house-private-kitchen.jpg",
+    image: "/food/stone-house-private-kitchen.svg",
     rating: 4.8,
     reviews: 1432,
     avgPrice: "¥180",
@@ -381,7 +381,7 @@ const restaurants = [
   {
     name: "海坛古城美食街",
     category: "美食街",
-    image: "/ancient-city-food-street.jpg",
+    image: "/food/ancient-city-food-street.svg",
     rating: 4.5,
     reviews: 3567,
     avgPrice: "¥60",
@@ -394,7 +394,7 @@ const restaurants = [
   {
     name: "甜蜜时光甜品店",
     category: "甜品",
-    image: "/dessert-cafe-sweet.jpg",
+    image: "/food/dessert-cafe-sweet.svg",
     rating: 4.6,
     reviews: 1876,
     avgPrice: "¥45",

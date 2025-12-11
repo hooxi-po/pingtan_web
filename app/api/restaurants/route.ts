@@ -219,7 +219,7 @@ export async function POST(request: Request) {
   try {
     const res = await db.query<Restaurant>(
       `INSERT INTO restaurants (name, category, image, rating, reviews, avg_price, distance, tags, description, specialty)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9, $10)
        RETURNING id, name, category, image, rating, reviews, avg_price AS "avgPrice", distance, tags, description, specialty`,
       [
         String(name),
