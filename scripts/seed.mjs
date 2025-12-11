@@ -406,7 +406,7 @@ const restaurants = [
   {
     name: "渔港码头海鲜市场",
     category: "海鲜",
-    image: "/fishing-port-seafood-market.jpg",
+    image: "/food/fishing-port-seafood-market.svg",
     rating: 4.9,
     reviews: 2543,
     avgPrice: "¥100",

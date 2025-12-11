@@ -1,5 +1,8 @@
 # 平潭旅游指南与本地生活平台
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your/repo)
+
+
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs)](https://nextjs.org/) [![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)](https://react.dev/) [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/) [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169e1?logo=postgresql&logoColor=white)](https://www.postgresql.org/) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > 探索蓝眼泪奇观、石头厝古韵与海岛美食的一站式 Web 应用。提供景点/住宿/美食检索、预订下单、用户登录、订单管理、天气与地图等核心能力。
@@ -70,7 +73,7 @@ scripts/            # 数据库建表与种子数据脚本 seed.mjs
 npm i
 
 # 2) 配置环境变量（见下方）
-cp .env.example .env.local  # 如果没有 .env.example，可直接新建 .env.local
+cp env.example .env.local  # 或手动新建 .env.local 并填入变量
 
 # 3) 初始化数据库（建表 + 示例数据）
 node scripts/seed.mjs
